@@ -32,6 +32,15 @@ interface UserDao {
     suspend fun findByEmail(email: String): UserEntity?
 
     /**
+     * Tìm kiếm thông tin người dùng dựa trên ID.
+     *
+     * @param id Định danh của người dùng cần tìm.
+     * @return Đối tượng [UserEntity] nếu tìm thấy, hoặc `null` nếu không tồn tại.
+     */
+    @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
+    suspend fun findById(id: String): UserEntity?
+
+    /**
      * Lắng nghe các thay đổi về thông tin của người dùng theo thời gian thực (reactive stream).
      *
      * @param id Định danh duy nhất của người dùng cần quan sát.

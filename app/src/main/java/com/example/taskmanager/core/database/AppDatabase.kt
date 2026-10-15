@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.example.taskmanager.core.database.dao.CommentDao
+import com.example.taskmanager.core.database.dao.ProjectDao
 import com.example.taskmanager.core.database.dao.TaskDao
 import com.example.taskmanager.core.database.dao.TeamDao
 import com.example.taskmanager.core.database.dao.UserDao
@@ -37,6 +38,7 @@ class Converters {
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun teamDao(): TeamDao
+    abstract fun projectDao(): ProjectDao
     abstract fun taskDao(): TaskDao
     abstract fun commentDao(): CommentDao
 }

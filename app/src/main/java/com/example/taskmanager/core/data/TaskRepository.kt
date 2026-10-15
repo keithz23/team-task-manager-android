@@ -1,8 +1,7 @@
-package com.example.taskmanager.feature.board
+package com.example.taskmanager.core.data
 
 import com.example.taskmanager.core.database.dao.StatusCount
 import com.example.taskmanager.core.database.entity.TaskEntity
-import com.example.taskmanager.core.database.relation.CommentWithAuthor
 import com.example.taskmanager.core.database.relation.TaskWithAssignee
 import com.example.taskmanager.core.model.Priority
 import com.example.taskmanager.core.model.TaskStatus
@@ -24,7 +23,4 @@ interface TaskRepository {
     suspend fun delete(id: String)
 }
 
-interface CommentRepository {
-    fun observe(taskId: String): Flow<List<CommentWithAuthor>>
-    suspend fun add(taskId: String, content: String): Result<Unit>
-}
+

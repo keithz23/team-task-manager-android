@@ -1,3 +1,8 @@
 package com.example.taskmanager.feature.team
 
-// TODO: Màn Tạo nhóm
+import androidx.compose.runtime.Composable
+import com.example.taskmanager.core.ui.StubScreen
+
+@Composable fun NewTeamScreen(onDone: () -> Unit) {
+    StubScreen("NewTeam")
+}

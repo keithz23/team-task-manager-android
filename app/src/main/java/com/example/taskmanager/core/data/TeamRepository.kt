@@ -1,4 +1,4 @@
-package com.example.taskmanager.feature.team
+package com.example.taskmanager.core.data
 
 import com.example.taskmanager.core.database.relation.MemberWithUser
 import com.example.taskmanager.core.database.relation.ProjectWithCount
