@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.taskmanager.core.ui.CollectMessages
 import com.example.taskmanager.core.ui.component.AppTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -18,6 +19,8 @@ fun RegisterScreen(
     onBackToLogin: () -> Unit,
     vm: AuthViewModel = hiltViewModel()
 ) {
+    CollectMessages(vm.messages)
+
     Column(
         modifier = Modifier
             .fillMaxSize()

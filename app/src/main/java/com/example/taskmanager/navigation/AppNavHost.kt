@@ -63,7 +63,7 @@ private val tabs = listOf(
 @Composable
 fun AppNavHost(session: SessionManager) {
     val auth by session.authState.collectAsStateWithLifecycle(initialValue = AuthState.Loading)
-    val snackbarHostState= remember{ SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     AppTheme {
         Surface(
@@ -84,7 +84,7 @@ fun AppNavHost(session: SessionManager) {
 
                 else -> {
                     val loggedIn = auth is AuthState.LoggedIn
-                    key(loggedIn) { MainScaffold(loggedIn,snackbarHostState) }
+                    key(loggedIn) { MainScaffold(loggedIn, snackbarHostState) }
                 }
             }
         }
@@ -96,7 +96,7 @@ private fun MainScaffold(loggedIn: Boolean, snackbarHostState: SnackbarHostState
     val nav = rememberNavController()
     val dest = nav.currentBackStackEntryAsState().value?.destination
 
-    CompositionLocalProvider (LocalSnackbarHostState provides snackbarHostState) {
+    CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
         Scaffold(
             snackbarHost = {
                 SnackbarHost(snackbarHostState) { data ->
