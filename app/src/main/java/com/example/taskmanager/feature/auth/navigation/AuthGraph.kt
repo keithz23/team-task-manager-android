@@ -1,5 +1,6 @@
 package com.example.taskmanager.feature.auth.navigation
 
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -17,14 +18,30 @@ fun NavGraphBuilder.authGraph(nav: NavHostController) {
     composable<Login> {
         LoginScreen(
             onRegister = {
-                nav.navigate(Register) {
-                    launchSingleTop = true
+                if (nav.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                    nav.navigate(Register) {
+                        launchSingleTop = true
+                    }
                 }
             }
         )
     }
-    composable<Register> { RegisterScreen(onBackToLogin = { nav.popBackStack() }) }
+    composable<Register> {
+        RegisterScreen(
+            onBackToLogin = {
+                if (nav.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                    if (!nav.popBackStack()) {
+                        nav.navigate(Login) {
+                            popUpTo<Register> { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
+            }
+        )
+    }
     composable<Profile> { ProfileScreen() }
     composable<MyTasks> { MyTasksScreen(onTask = { nav.navigate(TaskDetail(it)) }) }
 }
+
 
