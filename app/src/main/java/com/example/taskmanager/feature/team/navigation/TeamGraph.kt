@@ -16,7 +16,8 @@ fun NavGraphBuilder.teamGraph(nav: NavHostController) {
     composable<Teams> {
         TeamListScreen(
             onNewTeam = { nav.navigate(NewTeam) },
-            onTeam = { nav.navigate(TeamDetail(it)) },
+            //onTeam = { nav.navigate(TeamDetail(it)) },
+            onTeam = { teamId -> nav.navigate(Board(projectId = "project-demo-1", teamId = teamId)) },
         )
     }
     composable<NewTeam> { NewTeamScreen(onDone = { nav.popBackStack() }) }
