@@ -24,5 +24,5 @@ private val Light = lightColorScheme(
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = Light, content = content)
+    MaterialTheme(colorScheme = Light, typography = AppTypography, shapes = AppShapes, content = content)
 }
