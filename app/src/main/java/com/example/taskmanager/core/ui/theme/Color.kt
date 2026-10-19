@@ -21,6 +21,16 @@ val Amber50 = Color(0xFFFFFAEB)
 val Green700 = Color(0xFF027A48)
 val Green50 = Color(0xFFECFDF3)
 
+// Chỉ dùng cho avatar (thêm màu để ít người bị trùng màu).
+val Purple700 = Color(0xFF6941C6)
+val Purple50 = Color(0xFFF4F3FF)
+val Teal700 = Color(0xFF107569)
+val Teal50 = Color(0xFFE6F7F5)
+val Pink700 = Color(0xFFC11574)
+val Pink50 = Color(0xFFFDF2FA)
+val Indigo700 = Color(0xFF3538CD)
+val Indigo50 = Color(0xFFEEF4FF)
+
 /** Cặp màu nền + chữ cho chip/nhãn. */
 data class TagColors(val container: Color, val content: Color)
 

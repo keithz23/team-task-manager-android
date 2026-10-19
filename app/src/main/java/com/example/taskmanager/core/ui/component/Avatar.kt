@@ -20,9 +20,17 @@ import com.example.taskmanager.core.ui.theme.Blue50
 import com.example.taskmanager.core.ui.theme.Blue600
 import com.example.taskmanager.core.ui.theme.Green50
 import com.example.taskmanager.core.ui.theme.Green700
+import com.example.taskmanager.core.ui.theme.Indigo50
+import com.example.taskmanager.core.ui.theme.Indigo700
+import com.example.taskmanager.core.ui.theme.Pink50
+import com.example.taskmanager.core.ui.theme.Pink700
+import com.example.taskmanager.core.ui.theme.Purple50
+import com.example.taskmanager.core.ui.theme.Purple700
 import com.example.taskmanager.core.ui.theme.Red50
 import com.example.taskmanager.core.ui.theme.Red700
 import com.example.taskmanager.core.ui.theme.TagColors
+import com.example.taskmanager.core.ui.theme.Teal50
+import com.example.taskmanager.core.ui.theme.Teal700
 import kotlin.math.absoluteValue
 
 private val AvatarPalette = listOf(
@@ -30,6 +38,10 @@ private val AvatarPalette = listOf(
     TagColors(Green50, Green700),
     TagColors(Amber50, Amber700),
     TagColors(Red50, Red700),
+    TagColors(Purple50, Purple700),
+    TagColors(Teal50, Teal700),
+    TagColors(Pink50, Pink700),
+    TagColors(Indigo50, Indigo700),
 )
 
 /** "Nguyễn Văn An" → "VA" (chữ đầu của 2 từ cuối). Tên rỗng → "?". */
