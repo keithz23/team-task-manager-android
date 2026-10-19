@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -24,11 +25,22 @@ fun PrimaryButton(
     enabled: Boolean = true,
     loading: Boolean = false,
 ) {
+    // Khi loading nút bị khoá, nhưng vẫn giữ màu chính để vòng xoay trắng nhìn rõ
+    // (màu disabled mặc định là xám nhạt, vòng xoay gần như biến mất).
+    val colors = if (loading) {
+        ButtonDefaults.buttonColors(
+            disabledContainerColor = MaterialTheme.colorScheme.primary,
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary,
+        )
+    } else {
+        ButtonDefaults.buttonColors()
+    }
     Button(
         onClick = onClick,
         enabled = enabled && !loading,
         modifier = modifier.fillMaxWidth().heightIn(min = 50.dp),
         shape = MaterialTheme.shapes.medium,
+        colors = colors,
     ) {
         if (loading) {
             CircularProgressIndicator(
