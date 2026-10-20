@@ -6,19 +6,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val Light = lightColorScheme(
-    primary = Color(0xFF2447C8),
+    primary = Blue600,
     onPrimary = Color.White,
-    background = Color(0xFFF6F7F9),
+    primaryContainer = Blue50,
+    onPrimaryContainer = Blue900,
+    background = Gray50,
+    onBackground = Gray900,
     surface = Color.White,
-    onSurface = Color(0xFF14181F),
-    onSurfaceVariant = Color(0xFF4A5160),
-    outline = Color(0xFFCDD2DC),
-    outlineVariant = Color(0xFFE4E7EE),
-    error = Color(0xFFB42318),
+    onSurface = Gray900,
+    surfaceVariant = Gray50,
+    onSurfaceVariant = Gray600,
+    outline = Gray300,
+    outlineVariant = Gray100,
+    error = Red700,
+    errorContainer = Red50,
 )
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = Light, content = content)
+    MaterialTheme(colorScheme = Light, typography = AppTypography, shapes = AppShapes, content = content)
 }
-
