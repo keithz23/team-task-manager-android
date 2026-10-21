@@ -1,14 +1,28 @@
 package com.example.taskmanager.feature.auth
 
-import androidx.compose.runtime.Composable
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,10 +36,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.taskmanager.core.ui.CollectMessages
 import com.example.taskmanager.core.ui.Tags
 import com.example.taskmanager.core.ui.component.AppTextField
+import com.example.taskmanager.core.ui.component.PrimaryButton
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onRegister: () -> Unit, vm: AuthViewModel = hiltViewModel()) {
+fun LoginScreen(
+    onRegister: () -> Unit,
+    vm: AuthViewModel = hiltViewModel()
+) {
     CollectMessages(vm.messages)
 
     Surface(
@@ -35,6 +52,7 @@ fun LoginScreen(onRegister: () -> Unit, vm: AuthViewModel = hiltViewModel()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.Start
@@ -91,7 +109,8 @@ fun LoginScreen(onRegister: () -> Unit, vm: AuthViewModel = hiltViewModel()) {
                     label = "Email",
                     placeholder = "nguyenvana@gmail.com",
                     error = vm.emailError,
-                    keyboardType = KeyboardType.Email
+                    keyboardType = KeyboardType.Email,
+                    testTag = Tags.EMAIL
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -103,32 +122,22 @@ fun LoginScreen(onRegister: () -> Unit, vm: AuthViewModel = hiltViewModel()) {
                     label = "Mật khẩu",
                     placeholder = "******",
                     error = vm.passwordError,
-                    isPassword = true
+                    isPassword = true,
+                    testTag = Tags.PASSWORD
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Login
-                Button(
+                // Login Button dùng PrimaryButton
+                PrimaryButton(
+                    text = "Đăng nhập",
                     onClick = vm::login,
-                    enabled = !vm.isLoading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .testTag(Tags.LOGIN_BUTTON),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(
-                        text = if (vm.isLoading) "Đang đăng nhập..." else "Đăng nhập",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
+                    loading = vm.isLoading,
+                    modifier = Modifier.testTag(Tags.LOGIN_BUTTON)
+                )
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Footer
             Box(
@@ -147,7 +156,7 @@ fun LoginScreen(onRegister: () -> Unit, vm: AuthViewModel = hiltViewModel()) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     TextButton(
-                        onClick = { onRegister() },
+                        onClick = onRegister,
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(

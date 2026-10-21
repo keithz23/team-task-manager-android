@@ -4,6 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -11,10 +14,8 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.taskmanager.core.database.entity.TaskEntity
 import com.example.taskmanager.core.database.entity.UserEntity
@@ -45,7 +46,7 @@ class ComponentsTest {
                 AppTextField(value = text, onValueChange = { text = it }, label = "Email", testTag = "field")
             }
         }
-        rule.onNodeWithTag("field").performTextInput("an@demo.com")
+        rule.onNodeWithTag("field").performTextReplacement("an@demo.com")
         rule.onNodeWithTag("field").assertTextContains("an@demo.com")
     }
 
@@ -56,7 +57,7 @@ class ComponentsTest {
         rule.setContent {
             AppTheme { PrimaryButton("Gửi", { clicks++ }, Modifier.testTag("btn"), loading = loading) }
         }
-        rule.onNodeWithTag("btn").assertIsEnabled().performClick()
+        rule.onNodeWithTag("btn").assertIsEnabled().performSemanticsAction(SemanticsActions.OnClick)
         assertEquals(1, clicks)
 
         loading = true
@@ -70,7 +71,7 @@ class ComponentsTest {
         rule.setContent {
             AppTheme { PriorityChip(Priority.HIGH, onClick = { picked = Priority.HIGH }) }
         }
-        rule.onNodeWithText("Cao").performClick()
+        rule.onNodeWithText("Cao").performSemanticsAction(SemanticsActions.OnClick)
         assertEquals(Priority.HIGH, picked)
     }
 
@@ -88,7 +89,7 @@ class ComponentsTest {
         rule.onNodeWithText("Thấp").assertIsDisplayed()
         rule.onNodeWithText("Đang làm").assertIsDisplayed()
         rule.onNodeWithText("NA").assertIsDisplayed()
-        rule.onNodeWithText("Viết test").performClick()
+        rule.onNodeWithText("Viết test").performSemanticsAction(SemanticsActions.OnClick)
         assertEquals(true, clicked)
     }
 }

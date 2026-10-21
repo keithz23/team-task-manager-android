@@ -55,7 +55,7 @@ class AuthViewModel @Inject constructor(
 
 
     private fun isValidEmail(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        return EMAIL_REGEX.matches(email)
     }
 
     fun login() {
@@ -102,7 +102,7 @@ class AuthViewModel @Inject constructor(
         if (registerEmail.isBlank()) {
             emailError = "Email không được để trống"
             hasError = true
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(registerEmail).matches()) {
+        } else if (!isValidEmail(registerEmail)) {
             emailError = "Định dạng email không hợp lệ"
             hasError = true
         }
@@ -159,7 +159,9 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-
+    private companion object {
+        val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    }
 }
 
 

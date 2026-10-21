@@ -16,7 +16,7 @@ serialization = "1.7.1"
 junit = "4.13.2"
 turbine = "1.1.0"
 androidxTestExt = "1.2.1"
-espresso = "3.6.1"
+espresso = "3.7.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
