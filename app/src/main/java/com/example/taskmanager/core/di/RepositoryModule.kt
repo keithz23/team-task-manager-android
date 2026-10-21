@@ -1,5 +1,7 @@
 package com.example.taskmanager.core.di
 
+import com.example.taskmanager.core.data.CommentRepository
+import com.example.taskmanager.core.data.CommentRepositoryImpl
 import com.example.taskmanager.core.data.TaskRepository
 import com.example.taskmanager.core.data.TaskRepositoryImpl
 import com.example.taskmanager.core.data.TeamRepository
@@ -23,4 +25,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindTaskRepository(impl: TaskRepositoryImpl): TaskRepository
+
+    @Binds
+    abstract fun bindCommentRepository(impl: CommentRepositoryImpl): CommentRepository
 }
