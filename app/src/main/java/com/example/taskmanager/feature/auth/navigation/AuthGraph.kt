@@ -1,6 +1,7 @@
 package com.example.taskmanager.feature.auth.navigation
 
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -19,8 +20,11 @@ fun NavGraphBuilder.authGraph(nav: NavHostController) {
         LoginScreen(
             onRegister = {
                 if (nav.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-                    nav.navigate(Register) {
-                        launchSingleTop = true
+                    val isLogin = nav.currentBackStackEntry?.destination?.hasRoute<Login>() == true
+                    if (isLogin) {
+                        nav.navigate(Register) {
+                            launchSingleTop = true
+                        }
                     }
                 }
             }
@@ -30,10 +34,13 @@ fun NavGraphBuilder.authGraph(nav: NavHostController) {
         RegisterScreen(
             onBackToLogin = {
                 if (nav.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-                    if (!nav.popBackStack()) {
-                        nav.navigate(Login) {
-                            popUpTo<Register> { inclusive = true }
-                            launchSingleTop = true
+                    val isRegister = nav.currentBackStackEntry?.destination?.hasRoute<Register>() == true
+                    if (isRegister) {
+                        if (!nav.popBackStack(route = Login, inclusive = false)) {
+                            nav.navigate(Login) {
+                                popUpTo<Register> { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                     }
                 }
