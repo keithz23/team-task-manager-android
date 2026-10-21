@@ -4,6 +4,12 @@ object Tags {
     const val EMAIL = "email"
     const val PASSWORD = "password"
     const val LOGIN_BUTTON = "login_button"
+
+    const val FULL_NAME = "full_name"
+    const val REGISTER_EMAIL = "register_email"
+    const val REGISTER_PASSWORD = "register_password"
+    const val CONFIRM_PASSWORD = "confirm_password"
+    const val REGISTER_BUTTON = "register_button"
     const val TEAM_LIST = "team_list"
     const val TASK_LIST = "task_list"
     const val FAB_ADD_TASK = "fab_add_task"

@@ -1,5 +1,6 @@
 package com.example.taskmanager
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -9,8 +10,8 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.taskmanager.core.database.SeedData
 import com.example.taskmanager.core.session.SessionManager
@@ -63,8 +64,8 @@ class AddCommentTest {
         val message = "Mình đã push code lên rồi"
 
         composeRule.onNodeWithTag(Tags.COMMENT_SEND).assertIsNotEnabled()
-        composeRule.onNodeWithTag(Tags.COMMENT_INPUT).performTextInput(message)
-        composeRule.onNodeWithTag(Tags.COMMENT_SEND).assertIsEnabled().performClick()
+        composeRule.onNodeWithTag(Tags.COMMENT_INPUT).performTextReplacement(message)
+        composeRule.onNodeWithTag(Tags.COMMENT_SEND).assertIsEnabled().performSemanticsAction(SemanticsActions.OnClick)
 
         composeRule.waitUntil(5_000) {
             composeRule.onAllNodes(inCommentList(message)).fetchSemanticsNodes().isNotEmpty()
