@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -53,12 +54,12 @@ class RegisterScreenTest {
     fun showsRegisterScreenElements() {
         composeRule.onNodeWithText("Tạo tài khoản").assertIsDisplayed()
         composeRule.onNodeWithText("Bắt đầu quản lý công việc nhóm").assertIsDisplayed()
-        composeRule.onNodeWithTag(Tags.FULL_NAME).assertIsDisplayed()
-        composeRule.onNodeWithTag(Tags.REGISTER_EMAIL).assertIsDisplayed()
-        composeRule.onNodeWithTag(Tags.REGISTER_PASSWORD).assertIsDisplayed()
-        composeRule.onNodeWithTag(Tags.CONFIRM_PASSWORD).assertIsDisplayed()
-        composeRule.onNodeWithTag(Tags.REGISTER_BUTTON).assertIsDisplayed()
-        composeRule.onNodeWithText("Đăng nhập").assertIsDisplayed()
+        composeRule.onNodeWithTag(Tags.FULL_NAME).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithTag(Tags.REGISTER_EMAIL).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithTag(Tags.REGISTER_PASSWORD).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithTag(Tags.CONFIRM_PASSWORD).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithTag(Tags.REGISTER_BUTTON).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Đăng nhập").performScrollTo().assertIsDisplayed()
     }
 
     @Test
