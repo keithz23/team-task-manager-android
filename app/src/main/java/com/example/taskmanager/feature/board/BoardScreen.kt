@@ -1,6 +1,7 @@
 package com.example.taskmanager.feature.board
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,15 +14,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.taskmanager.core.ui.StubScreen
+import com.example.taskmanager.core.model.TaskStatus
+import com.example.taskmanager.core.ui.component.TaskCard
 
 @Composable
 fun BoardScreen(
@@ -46,6 +46,8 @@ fun BoardScreen(
     val projectName by vm.projectName.collectAsStateWithLifecycle()
     val members by vm.members.collectAsStateWithLifecycle()
     var showSheet by remember { mutableStateOf(false) }
+    val selectedStatus = vm.selectedStatus.collectAsStateWithLifecycle()
+    val tabs = listOf(TaskStatus.TODO, TaskStatus.DOING, TaskStatus.DONE)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,20 +78,70 @@ fun BoardScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Create Task")
+            Text("Tạo Task mới")
         }
-        Divider()
-        Text("Danh sách việc cần làm (${taskList.size}):", style = MaterialTheme.typography.titleSmall)
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+
+        TabRow(
+            selectedTabIndex = tabs.indexOf(selectedStatus.value),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            items(taskList, key = { it.task.id }) { item ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = item.task.title,
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge
+            tabs.forEach { status ->
+                val tabTitle = when (status) {
+                    TaskStatus.TODO -> "Todo"
+                    TaskStatus.DOING -> "Doing"
+                    TaskStatus.DONE -> "Done"
+                }
+                val isSelected = selectedStatus.value == status
+
+                Tab(
+                    selected = isSelected,
+                    onClick = { vm.selectStatus(status) },
+                    text = {
+                        Text(
+                            text = tabTitle,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                )
+            }
+        }
+
+        Text(
+            text = "${
+                when (selectedStatus.value) {
+                    TaskStatus.TODO -> "Todo"
+                    TaskStatus.DOING -> "Doing"
+                    TaskStatus.DONE -> "Done"
+                }
+            } (${taskList.size})",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold
+        )
+
+        if (taskList.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Không có công việc nào",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(taskList, key = { it.task.id }) { item ->
+                    // Sử dụng component TaskCard đã có sẵn của app
+                    TaskCard(
+                        item = item,
+                        onClick = { onTask(item.task.id) }
                     )
                 }
             }
