@@ -1,9 +1,15 @@
 package com.example.taskmanager.util
 
 import com.example.taskmanager.core.data.CommentRepository
+import com.example.taskmanager.core.data.TeamRepository
 import com.example.taskmanager.core.database.entity.CommentEntity
+import com.example.taskmanager.core.database.entity.TeamMemberEntity
 import com.example.taskmanager.core.database.entity.UserEntity
 import com.example.taskmanager.core.database.relation.CommentWithAuthor
+import com.example.taskmanager.core.database.relation.MemberWithUser
+import com.example.taskmanager.core.database.relation.ProjectWithCount
+import com.example.taskmanager.core.database.relation.TeamWithCounts
+import com.example.taskmanager.core.model.TeamRole
 import com.example.taskmanager.feature.auth.AuthRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
@@ -84,7 +90,12 @@ class FakeAuthRepository(
         if (users.values.any { it.email == email }) {
             return Result.failure(Exception("Email đã được sử dụng"))
         }
-        val newUser = UserEntity(id = "u-${users.size + 1}", name = name, email = email, passwordHash = password)
+        val newUser = UserEntity(
+            id = "u-${users.size + 1}",
+            name = name,
+            email = email,
+            passwordHash = password
+        )
         users[newUser.id] = newUser
         currentUserIdFlow.value = newUser.id
         return Result.success(Unit)
@@ -102,5 +113,67 @@ class FakeAuthRepository(
 
     override suspend fun logout() {
         currentUserIdFlow.value = null
+    }
+}
+
+class FakeTeamRepository(
+    initialTeams: List<TeamWithCounts> = emptyList(),
+    initialProjects: Map<String, List<ProjectWithCount>> = emptyMap(),
+    initialMembers: Map<String, List<MemberWithUser>> = emptyMap(),
+    initialUsers: List<UserEntity> = emptyList(),
+) : TeamRepository {
+
+    val teamsFlow = MutableStateFlow(initialTeams)
+    val projectsMap = mutableMapOf<String,
+            MutableStateFlow<List<ProjectWithCount>>>().apply {
+        initialProjects.forEach { (teamId, list) -> put(teamId, MutableStateFlow(list)) }
+    }
+    val membersMap = mutableMapOf<String, MutableStateFlow<List<MemberWithUser>>>().apply {
+        initialMembers.forEach { (teamId, list) -> put(teamId, MutableStateFlow(list)) }
+    }
+    val users = mutableListOf<UserEntity>().apply { addAll(initialUsers) }
+
+    var failCreateTeam: Throwable? = null
+    var failCreateProject: Throwable? = null
+    var failAddMember: Throwable? = null
+
+    override fun observeTeams(): Flow<List<TeamWithCounts>> = teamsFlow
+
+    override fun observeProjects(teamId: String): Flow<List<ProjectWithCount>> =
+        projectsMap.getOrPut(teamId) { MutableStateFlow(emptyList()) }
+
+    override fun observeMembers(teamId: String): Flow<List<MemberWithUser>> =
+        membersMap.getOrPut(teamId) { MutableStateFlow(emptyList()) }
+
+    override suspend fun createTeam(name: String, firstProject: String?): Result<String> {
+        failCreateTeam?.let { return Result.failure(it) }
+        val id = "team-${teamsFlow.value.size + 1}"
+        val newTeam = TeamWithCounts(id = id, name = name, role = TeamRole.OWNER, memberCount = 1)
+        teamsFlow.update { it +newTeam }
+        if (!firstProject.isNullOrBlank()){
+            createProject(id,firstProject)
+        }
+        return Result.success(id)
+    }
+
+    override suspend fun createProject(teamId: String, name: String): Result<Unit> {
+        failCreateProject?.let{return Result.failure(it) }
+        val flow = projectsMap.getOrPut(teamId) {MutableStateFlow(emptyList())}
+        val  newProject = ProjectWithCount(id = "p-${flow.value.size +1}", name, taskCount = 0)
+        flow.update { it +newProject }
+        return Result.success(Unit)
+    }
+
+    override suspend fun addMemberByEmail(teamId: String, email: String): Result<Unit> {
+        failAddMember?.let { return Result.failure(it) }
+        val user = users.find { it.email== email } ?: UserEntity(id = "u-${email.take(3)}", name = email.substringBefore("@"), email = email, passwordHash = "")
+        val flow = membersMap.getOrPut(teamId){ MutableStateFlow(emptyList()) }
+        val  member = MemberWithUser(TeamMemberEntity(teamId, user.id, TeamRole.MEMBER), user)
+        flow.update { (it + member) }
+        return Result.success((Unit))
+    }
+
+    override suspend fun findUserByEmail(email: String): Result<Boolean> {
+        return Result.success(users.any { it.email == email })
     }
 }
