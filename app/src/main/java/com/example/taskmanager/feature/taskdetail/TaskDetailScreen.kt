@@ -72,6 +72,8 @@ import com.example.taskmanager.feature.comment.CommentSection
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material3.FilterChipDefaults
+import com.example.taskmanager.core.ui.theme.tagColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -186,6 +188,11 @@ fun TaskDetailScreen(
                                     }
                                 },
                                 label = { Text(status.label) },
+                                // Cùng màu với nhãn trạng thái trên TaskCard
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = status.tagColors().container,
+                                    selectedLabelColor = status.tagColors().content,
+                                ),
                             )
                         }
                     }
