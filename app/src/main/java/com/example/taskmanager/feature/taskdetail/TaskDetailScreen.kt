@@ -75,6 +75,7 @@ import java.util.Locale
 import androidx.compose.material3.FilterChipDefaults
 import com.example.taskmanager.core.ui.theme.tagColors
 import com.example.taskmanager.core.ui.CollectMessages
+import com.example.taskmanager.feature.board.NotPastSelectableDates
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -493,6 +494,7 @@ private fun EditTaskBottomSheet(
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDueDate ?: System.currentTimeMillis(),
+            selectableDates = NotPastSelectableDates,
         )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },

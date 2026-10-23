@@ -48,6 +48,9 @@ import com.example.taskmanager.core.ui.component.PriorityChip
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material3.SelectableDates
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -213,20 +216,7 @@ fun TaskFormSheet(
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDueDate ?: System.currentTimeMillis(),
-            // Vô hiệu hóa tất cả các ngày nhỏ hơn thời điểm hiện tại (đã trừ đi offset trong ngày)
-            selectableDates = object : androidx.compose.material3.SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    // Lấy mốc bắt đầu ngày hôm nay (00:00:00 UTC) để vẫn cho phép chọn ngày hiện tại
-                    val startOfToday =
-                        System.currentTimeMillis() - (System.currentTimeMillis() % (24 * 60 * 60 * 1000))
-                    return utcTimeMillis >= startOfToday
-                }
-
-                override fun isSelectableYear(year: Int): Boolean {
-                    val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
-                    return year >= currentYear
-                }
-            }
+            selectableDates = NotPastSelectableDates,
         )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -253,3 +243,18 @@ fun TaskFormSheet(
 
 private fun formatDueDate(millis: Long): String =
     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(millis))
+
+/**
+ * Chỉ cho chọn từ hôm nay trở đi. Dùng chung cho form tạo và form sửa task.
+ * DatePicker đưa vào mốc 00:00 UTC của từng ngày, nên "hôm nay" là ngày theo giờ máy
+ * đổi sang 00:00 UTC (tránh lệch 1 ngày ở múi giờ UTC+7 vào 00:00–06:59).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+internal object NotPastSelectableDates : SelectableDates {
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        val startOfToday = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        return utcTimeMillis >= startOfToday
+    }
+
+    override fun isSelectableYear(year: Int): Boolean = year >= LocalDate.now().year
+}
