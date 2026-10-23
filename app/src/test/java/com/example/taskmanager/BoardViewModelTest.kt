@@ -369,4 +369,14 @@ class BoardViewModelTest {
         }
         assertEquals(0, repo.createdCalls.size)
     }
+
+    @Test
+    fun counts_groupTasksByStatus() = runTest {
+        val vm = createVm()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.counts.collect {} }
+        assertEquals(
+            mapOf(TaskStatus.TODO to 1, TaskStatus.DOING to 1, TaskStatus.DONE to 1),
+            vm.counts.value,
+        )
+    }
 }

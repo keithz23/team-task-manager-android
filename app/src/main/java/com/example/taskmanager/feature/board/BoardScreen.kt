@@ -37,6 +37,7 @@ import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.core.ui.component.TaskCard
 import com.example.taskmanager.core.ui.component.label
 import com.example.taskmanager.core.ui.CollectMessages
+import androidx.compose.foundation.layout.Row
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +53,7 @@ fun BoardScreen(
     val members by vm.members.collectAsStateWithLifecycle()
     var showSheet by remember { mutableStateOf(false) }
     val selectedStatus by vm.selectedStatus.collectAsStateWithLifecycle()
+    val counts by vm.counts.collectAsStateWithLifecycle()
     val tabs = listOf(TaskStatus.TODO, TaskStatus.DOING, TaskStatus.DONE)
     CollectMessages(vm.messages)
 
@@ -106,21 +108,17 @@ fun BoardScreen(
                         selected = isSelected,
                         onClick = { vm.selectStatus(status) },
                         text = {
-                            Text(
-                                text = tabTitle,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            val color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            val weight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            // Tên tab và số lượng là 2 Text riêng để UI test vẫn tìm được đúng "Cần làm"
+                            Row {
+                                Text(text = tabTitle, fontWeight = weight, color = color)
+                                Text(text = " (${counts[status] ?: 0})", fontWeight = weight, color = color)
+                            }
                         },
                     )
                 }
             }
-
-            Text(
-                text = "${selectedStatus.label} (${taskList.size})",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-            )
 
             if (taskList.isEmpty()) {
                 Box(

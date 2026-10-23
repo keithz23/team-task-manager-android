@@ -237,7 +237,11 @@ class FakeTaskRepository(
     override fun observeCounts(
         projectId: String
     ): Flow<List<StatusCount>> {
-        return flowOf(emptyList())
+        return tasks.map { list ->
+            list.filter { it.task.projectId == projectId }
+                .groupingBy { it.task.status }.eachCount()
+                .map { (status, count) -> StatusCount(status, count) }
+        }
     }
 
     override fun observeMine(): Flow<List<TaskWithAssignee>> {

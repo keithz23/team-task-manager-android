@@ -44,6 +44,11 @@ class BoardViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
+    /** Số task theo từng trạng thái, hiện cạnh tên tab. */
+    val counts: StateFlow<Map<TaskStatus, Int>> = repo.observeCounts(projectId)
+        .map { list -> list.associate { it.status to it.count } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     val members: StateFlow<List<MemberWithUser>> = repoTeam.observeMembers(teamId)
         .stateIn(
             scope = viewModelScope,
