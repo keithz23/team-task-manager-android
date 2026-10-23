@@ -110,10 +110,15 @@ fun BoardScreen(
                         text = {
                             val color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             val weight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                            // Tên tab và số lượng là 2 Text riêng để UI test vẫn tìm được đúng "Cần làm"
-                            Row {
-                                Text(text = tabTitle, fontWeight = weight, color = color)
-                                Text(text = " (${counts[status] ?: 0})", fontWeight = weight, color = color)
+                            // Tên tab và số lượng là 2 Text riêng (UI test vẫn tìm được đúng "Cần làm");
+                            // số lượng nằm dòng dưới để "Hoàn thành" không bị xuống dòng.
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = tabTitle, fontWeight = weight, color = color, maxLines = 1)
+                                Text(
+                                    text = "${counts[status] ?: 0} task",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = color,
+                                )
                             }
                         },
                     )
