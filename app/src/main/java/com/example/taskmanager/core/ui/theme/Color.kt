@@ -57,6 +57,31 @@ val DarkPinkContainer = Color(0xFF630B38)
 val DarkIndigo = Color(0xFFB3C5FF)
 val DarkIndigoContainer = Color(0xFF232599)
 
+// Vai trò phụ của colorScheme (theo cấu trúc Material Theme Builder xuất ra).
+// Thiếu các vai trò này, component Material (NavigationBar, BottomSheet, DatePicker,
+// SegmentedButton…) tự lấy màu tím mặc định của Material 3.
+// secondary: xanh xám (bổ trợ cho primary), tertiary: xanh ngọc (điểm nhấn).
+val SecondaryLight = Color(0xFF4F5B76)
+val SecondaryContainerLight = Color(0xFFDAE2FA)
+val OnSecondaryContainerLight = Color(0xFF0B1830)
+val TertiaryContainerLight = Color(0xFFB8EFE6)
+val OnTertiaryContainerLight = Color(0xFF00332D)
+val InverseSurfaceLight = Color(0xFF2B303A)
+val InverseOnSurfaceLight = Color(0xFFF0F2F6)
+val SurfaceContainerLowLight = Color(0xFFF9FAFB)
+val SurfaceContainerLight = Color(0xFFF2F4F7)
+val SurfaceContainerHighLight = Color(0xFFECEEF2)
+
+val SecondaryDark = Color(0xFFBAC6E3)
+val OnSecondaryDark = Color(0xFF243048)
+val SecondaryContainerDark = Color(0xFF3A4660)
+val OnSecondaryContainerDark = Color(0xFFDAE2FA)
+val OnTertiaryDark = Color(0xFF003731)
+val OnTertiaryContainerDark = Color(0xFFA6F2E8)
+val SurfaceContainerLowestDark = Color(0xFF0A0D12)
+val SurfaceContainerLowDark = Color(0xFF13171E)
+val SurfaceContainerHighestDark = Color(0xFF262C36)
+
 val LightAvatarPalette = listOf(
     TagColors(Blue50, Blue600),
     TagColors(Green50, Green700),
