@@ -31,7 +31,7 @@ class Converters {
 @Database(
     entities = [UserEntity::class, TeamEntity::class, TeamMemberEntity::class,
         ProjectEntity::class, TaskEntity::class, CommentEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

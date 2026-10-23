@@ -103,6 +103,13 @@ interface TaskDao {
         ORDER BY dueDate IS NULL, dueDate
     """)
     fun observeMine(userId: String): Flow<List<TaskWithAssignee>>
+
+    /**
+     * Lắng nghe tổng số công việc đã hoàn thành bởi một người dùng cụ thể theo thời gian thực.
+     * @param userId Identity của người dùng.
+     * */
+    @Query("SELECT COUNT(*) FROM tasks WHERE assigneeId = :userId AND status = 'DONE'")
+    fun observeCompletedTaskCount(userId: String): Flow<Int>
 }
 
 /**

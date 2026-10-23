@@ -14,7 +14,9 @@ import javax.inject.Singleton
 object DbModule {
     @Provides @Singleton
     fun db(@ApplicationContext c: Context) =
-        Room.databaseBuilder(c, AppDatabase::class.java, "taskmanager.db").build()
+        Room.databaseBuilder(c, AppDatabase::class.java, "taskmanager.db")
+            .fallbackToDestructiveMigration()
+            .build()
 
     @Provides fun userDao(db: AppDatabase) = db.userDao()
     @Provides fun teamDao(db: AppDatabase) = db.teamDao()

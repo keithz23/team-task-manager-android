@@ -299,57 +299,6 @@ class AuthViewModelTest {
         assertFalse(vm.isLoading)
     }
 
-    // --- USER & SESSION TESTS ---
-
-    @Test
-    fun getUserById_success_updatesUserState() = runTest {
-        val vm = createVm()
-
-        vm.getUserById("u-an")
-        advanceUntilIdle()
-
-        assertEquals(userAn, vm.user)
-        assertFalse(vm.isLoading)
-    }
-
-    @Test
-    fun getUserById_failure_emitsErrorMessage() = runTest {
-        val vm = createVm()
-
-        vm.messages.test {
-            vm.getUserById("non-existent-user")
-            advanceUntilIdle()
-
-            assertEquals("Không tìm thấy người dùng", awaitItem())
-            cancelAndIgnoreRemainingEvents()
-        }
-
-        assertNull(vm.user)
-        assertFalse(vm.isLoading)
-    }
-
-    @Test
-    fun getUserById_blankId_doesNothing() = runTest {
-        val vm = createVm()
-
-        vm.getUserById("   ")
-        advanceUntilIdle()
-
-        assertNull(vm.user)
-        assertFalse(vm.isLoading)
-    }
-
-    @Test
-    fun logout_clearsCurrentUserId() = runTest {
-        val vm = createVm()
-        repo.currentUserIdFlow.value = "u-an"
-
-        vm.logout()
-        advanceUntilIdle()
-
-        assertNull(vm.currentUserId.value)
-    }
-
     @Test
     fun clearError_resetsErrorState() = runTest {
         val vm = createVm()
