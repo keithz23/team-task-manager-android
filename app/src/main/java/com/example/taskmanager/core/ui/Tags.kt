@@ -20,4 +20,8 @@ object Tags {
     const val COMMENT_INPUT = "comment_input"
     const val COMMENT_SEND = "comment_send"
     fun commentItem(id: String) = "comment_item_$id"
+
+    // Team (NewTeamScreen)
+    const val TEAM_NAME = "team_name"
+    const val CREATE_TEAM_BUTTON = "create_team_button"
 }

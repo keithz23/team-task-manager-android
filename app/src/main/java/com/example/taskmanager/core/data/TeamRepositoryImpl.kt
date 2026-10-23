@@ -73,6 +73,11 @@ class TeamRepositoryImpl @Inject constructor(
             teamDao.insertMember(TeamMemberEntity(teamId, user.id, TeamRole.MEMBER))
         }
 
+    override suspend fun findUserByEmail(email: String): Result<Boolean> =
+        runCatching {
+            userDao.findByEmail(email.trim().lowercase()) != null
+        }
+
     private suspend fun requireUserId(): String =
         session.currentUserId() ?: error("Chưa đăng nhập")
 }

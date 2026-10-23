@@ -12,5 +12,6 @@ interface TeamRepository {
     suspend fun createTeam(name: String, firstProject: String?): Result<String>
     suspend fun createProject(teamId: String, name: String): Result<Unit>
     suspend fun addMemberByEmail(teamId: String, email: String): Result<Unit>
+    suspend fun findUserByEmail(email: String): Result<Boolean>
 }
 
