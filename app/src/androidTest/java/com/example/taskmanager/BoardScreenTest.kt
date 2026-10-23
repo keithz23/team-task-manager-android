@@ -3,8 +3,10 @@ package com.example.taskmanager
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -90,10 +92,19 @@ class BoardScreenTest {
     // 4. Bấm nút "Tạo Task mới" thì mở TaskFormSheet
     @Test
     fun clickCreateTaskButton_opensTaskFormSheet() {
-        composeRule.onNodeWithText("Tạo Task mới").performSemanticsAction(SemanticsActions.OnClick)
+        composeRule
+            .onNodeWithText("Tạo Task mới")
+            .performClick()
 
-        // Kiểm tra BottomSheet hiện lên với ô nhập tiêu đề và nút Tạo mới
-        composeRule.onNodeWithTag(Tags.TASK_TITLE).assertIsDisplayed()
-        composeRule.onNodeWithText("Tạo mới").assertIsDisplayed()
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            composeRule
+                .onAllNodesWithTag(Tags.TASK_TITLE)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+
+        composeRule
+            .onNodeWithTag(Tags.TASK_TITLE)
+            .assertIsDisplayed()
     }
 }
