@@ -31,6 +31,14 @@ private val previewTask = TaskWithAssignee(
     project = ProjectEntity(id = "p1", teamId = "team", name = "App quản lý công việc"),
 )
 
+private val previewOverdueTask = TaskWithAssignee(
+    task = TaskEntity(
+        id = "t2", projectId = "p1", title = "Viết báo cáo tuần",
+        priority = Priority.MEDIUM, status = TaskStatus.TODO, dueDate = 1_700_000_000_000,
+    ),
+    assignee = UserEntity(id = "u2", name = "Trần Bình", email = "", passwordHash = ""),
+)
+
 @Composable
 private fun ComponentGallery() {
     Surface(color = MaterialTheme.colorScheme.background) {
@@ -43,6 +51,7 @@ private fun ComponentGallery() {
                 listOf("Nguyễn An", "Trần Bình", "Lê Kiệt", "Phạm Huê").forEach { AvatarInitials(it) }
             }
             TaskCard(previewTask, onClick = {}, showStatus = true, showProject = true)
+            TaskCard(previewOverdueTask, onClick = {}, showStatus = true)
             AppTextField("an@demo.com", {}, label = "Email")
             AppTextField("123", {}, label = "Mật khẩu", error = "Mật khẩu tối thiểu 6 ký tự", isPassword = true)
             PrimaryButton("Đăng nhập", {})

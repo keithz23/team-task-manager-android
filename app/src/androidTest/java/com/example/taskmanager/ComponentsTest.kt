@@ -92,4 +92,27 @@ class ComponentsTest {
         rule.onNodeWithText("Viết test").performSemanticsAction(SemanticsActions.OnClick)
         assertEquals(true, clicked)
     }
+
+    @Test
+    fun taskCard_overdue_showsQuaHan() {
+        val yesterday = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L
+        val item = TaskWithAssignee(
+            task = TaskEntity(id = "t2", projectId = "p1", title = "Task trễ hạn", dueDate = yesterday),
+            assignee = null,
+        )
+        rule.setContent { AppTheme { TaskCard(item, onClick = {}) } }
+        rule.onNodeWithText("Quá hạn", substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun taskCard_doneTaskWithPastDue_isNotOverdue() {
+        val yesterday = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000L
+        val item = TaskWithAssignee(
+            task = TaskEntity(id = "t3", projectId = "p1", title = "Task đã xong", dueDate = yesterday, status = TaskStatus.DONE),
+            assignee = null,
+        )
+        rule.setContent { AppTheme { TaskCard(item, onClick = {}) } }
+        rule.onNodeWithText("Hạn", substring = true).assertIsDisplayed()
+        rule.onNodeWithText("Quá hạn", substring = true).assertDoesNotExist()
+    }
 }
