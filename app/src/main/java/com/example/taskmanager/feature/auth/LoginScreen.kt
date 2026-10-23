@@ -73,7 +73,7 @@ fun LoginScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Logo Icon",
+                        contentDescription = null, // icon trang trí, TalkBack bỏ qua
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(28.dp)
                     )

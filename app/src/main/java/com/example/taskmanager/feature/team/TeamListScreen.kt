@@ -174,7 +174,7 @@ fun TeamListContent(
             },
             dismissButton = {
                 TextButton(onClick = { dialogTeamId = null }) {
-                    Text("Huỷ")
+                    Text("Hủy")
                 }
             },
         )

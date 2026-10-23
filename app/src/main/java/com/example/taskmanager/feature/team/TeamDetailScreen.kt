@@ -85,7 +85,7 @@ fun TeamDetailContent(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Nhóm của tôi",
+                        text = state.teamName.ifEmpty { "Chi tiết nhóm" },
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
@@ -113,11 +113,6 @@ fun TeamDetailContent(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(
-                text = state.teamName.ifEmpty { "Chi tiết nhóm" },
-                style = MaterialTheme.typography.headlineMedium,
-            )
-
             if (state.isLoading) {
                 CircularProgressIndicator()
                 return@Column
@@ -140,11 +135,9 @@ fun TeamDetailContent(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text("Project", style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            text = "+ Thêm",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { showProjectDialog = true })
+                        if (state.canManage) {
+                            TextButton(onClick = { showProjectDialog = true }) { Text("+ Thêm") }
+                        }
                     }
 
                     if (state.projects.isEmpty()) {
@@ -194,12 +187,9 @@ fun TeamDetailContent(
                             text = "Thành viên (${state.members.size})",
                             style = MaterialTheme.typography.titleMedium,
                         )
-                        Text(
-                            text = "+ Thêm",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { showMemberDialog = true },
-                        )
+                        if (state.canManage) {
+                            TextButton(onClick = { showMemberDialog = true }) { Text("+ Thêm") }
+                        }
                     }
 
                     state.members.forEach { item ->
@@ -263,7 +253,7 @@ fun TeamDetailContent(
             var email by remember { mutableStateOf("") }
             AlertDialog(
                 onDismissRequest = { showMemberDialog = false },
-                title = { Text(" Thêm thành viên mới") },
+                title = { Text("Thêm thành viên mới") },
                 text = {
                     OutlinedTextField(
                         value = email,

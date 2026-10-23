@@ -19,6 +19,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
+import org.junit.Assert.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TeamDetailViewModelTest {
@@ -88,5 +89,18 @@ class TeamDetailViewModelTest {
         val state = vm.state.value
         assertEquals(1, state.members.size)
         assertEquals("binh@demo.com", state.members[0].user.email)
+    }
+
+    @Test
+    fun canManage_trueForOwner_falseForMember() = runTest {
+        val ownerVm = createVm(FakeTeamRepository(
+            initialTeams = listOf(TeamWithCounts(id = "t1", name = "Nhóm", role = TeamRole.OWNER, memberCount = 2)),
+        ))
+        assertTrue(ownerVm.state.value.canManage)
+
+        val memberVm = createVm(FakeTeamRepository(
+            initialTeams = listOf(TeamWithCounts(id = "t1", name = "Nhóm", role = TeamRole.MEMBER, memberCount = 2)),
+        ))
+        assertFalse(memberVm.state.value.canManage)
     }
 }
