@@ -162,7 +162,7 @@ fun TaskDetailScreen(
                         shape = MaterialTheme.shapes.small,
                     ) {
                         Text(
-                            text = "🔒 Bạn đang ở chế độ chỉ đọc. Chỉ người thực hiện hoặc Trưởng nhóm mới có quyền chỉnh sửa.",
+                            text = "🔒 Bạn đang ở chế độ chỉ đọc. Chỉ người thực hiện, Chủ nhóm hoặc Quản trị mới có quyền chỉnh sửa.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(10.dp),
@@ -254,6 +254,14 @@ fun TaskDetailScreen(
                                 fontWeight = FontWeight.Medium,
                             )
                         }
+
+                        // Ngữ cảnh khi mở từ "Việc của tôi": task thuộc dự án nào, tạo khi nào
+                        item.project?.let { project ->
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                            DetailRow(label = "Dự án:", value = project.name)
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        DetailRow(label = "Ngày tạo:", value = formatDateTime(task.createdAt))
                     }
                 }
 
@@ -506,6 +514,18 @@ private fun EditTaskBottomSheet(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium)
+        Text(value, fontWeight = FontWeight.Medium)
     }
 }
 
