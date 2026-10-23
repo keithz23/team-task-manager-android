@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
@@ -91,6 +92,13 @@ class ComponentsTest {
         rule.onNodeWithText("NA").assertIsDisplayed()
         rule.onNodeWithText("Viết test").performSemanticsAction(SemanticsActions.OnClick)
         assertEquals(true, clicked)
+    }
+
+    @Test
+    fun appTextField_passwordToggle_hasVietnameseDescription() {
+        rule.setContent { AppTheme { AppTextField("123456", {}, label = "Mật khẩu", isPassword = true) } }
+        rule.onNodeWithContentDescription("Hiện mật khẩu").performSemanticsAction(SemanticsActions.OnClick)
+        rule.onNodeWithContentDescription("Ẩn mật khẩu").assertIsDisplayed()
     }
 
     @Test
