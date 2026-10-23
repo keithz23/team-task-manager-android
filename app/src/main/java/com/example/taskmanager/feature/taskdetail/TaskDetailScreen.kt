@@ -47,191 +47,186 @@ fun TaskDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showConfirmDoneDialog by remember { mutableStateOf(false) }
     var showEditSheet by remember { mutableStateOf(false) }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Chi tiết công việc", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lại")
-                    }
-                },
-                actions = {
-                    if (canEdit) {
-                        IconButton(onClick = { showEditSheet = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Chỉnh sửa task",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    if (canDelete) {
-                        IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Xóa task",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        taskWithAssignee?.let { item ->
-            val task = item.task
-            val assignee = item.assignee
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .imePadding()
-                    .padding(horizontal = 20.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+    taskWithAssignee?.let { item ->
+        val task = item.task
+        val assignee = item.assignee
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding()
+                .padding(horizontal = 20.dp)
+                .offset(y = (10).dp)
+                .padding(bottom = 24.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lại")
+                }
+                Spacer(Modifier.width(8.dp))
                 Text(
-                    text = task.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    text = "Chi tiết công việc",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
                 )
 
-                if (!canEdit) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        shape = MaterialTheme.shapes.small
-                    ) {
-                        Text(
-                            text = "🔒 Bạn đang xem ở chế độ chỉ đọc. Chỉ người được giao việc hoặc Trưởng nhóm mới có quyền chỉnh sửa.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(10.dp)
+                if (canEdit) {
+                    IconButton(onClick = { showEditSheet = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Chỉnh sửa task",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "Trạng thái",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TaskStatus.entries.forEach { status ->
-                            val isSelected = (task.status == status)
-                            val label = when (status) {
-                                TaskStatus.TODO -> "Cần làm"
-                                TaskStatus.DOING -> "Đang làm"
-                                TaskStatus.DONE -> "Đã xong"
-                            }
-                            FilterChip(
-                                selected = isSelected,
-                                enabled = canEdit,
-                                onClick = {
-                                    if (status == TaskStatus.DONE && task.status != TaskStatus.DONE) {
-                                        showConfirmDoneDialog = true
-                                    } else {
-                                        vm.updateStatus(status)
-                                    }
-                                },
-                                label = { Text(label) }
-                            )
-                        }
+                if (canDelete) {
+                    IconButton(onClick = { showDeleteDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Xóa task",
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = CardDefaults.outlinedCardColors()
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Độ ưu tiên:", style = MaterialTheme.typography.bodyMedium)
-                            PriorityChip(priority = task.priority)
-                        }
-
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Người làm:", style = MaterialTheme.typography.bodyMedium)
-                            if (assignee != null) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    AvatarInitials(name = assignee.name, size = 26.dp)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(assignee.name, fontWeight = FontWeight.SemiBold)
-                                }
-                            } else {
-                                Text("Chưa phân công", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Hạn chót:", style = MaterialTheme.typography.bodyMedium)
-                            Text(
-                                text = task.dueDate?.let { formatDateTime(it) } ?: "Không có",
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
-
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "Mô tả",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = task.description.ifEmpty { "Chưa có mô tả chi tiết cho công việc này." },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (task.description.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                HorizontalDivider()
-
-                CommentSection(taskId = vm.taskId)
-
-                Spacer(Modifier.height(16.dp))
             }
 
-            if (showEditSheet) {
-                EditTaskBottomSheet(
-                    task = task,
-                    members = members,
-                    onDismiss = { showEditSheet = false },
-                    onSave = { title, desc, priority, dueDate, assigneeId ->
-                        vm.updateTask(title, desc, priority, dueDate, assigneeId)
-                        showEditSheet = false
+            Text(
+                text = task.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (!canEdit) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Text(
+                        text = "🔒 Bạn đang xem ở chế độ chỉ đọc. Chỉ người được giao việc hoặc Trưởng nhóm mới có quyền chỉnh sửa.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Trạng thái",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TaskStatus.entries.forEach { status ->
+                        val isSelected = (task.status == status)
+                        val label = when (status) {
+                            TaskStatus.TODO -> "Cần làm"
+                            TaskStatus.DOING -> "Đang làm"
+                            TaskStatus.DONE -> "Đã xong"
+                        }
+                        FilterChip(
+                            selected = isSelected,
+                            enabled = canEdit,
+                            onClick = {
+                                if (status == TaskStatus.DONE && task.status != TaskStatus.DONE) {
+                                    showConfirmDoneDialog = true
+                                } else {
+                                    vm.updateStatus(status)
+                                }
+                            },
+                            label = { Text(label) }
+                        )
                     }
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                colors = CardDefaults.outlinedCardColors()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Độ ưu tiên:", style = MaterialTheme.typography.bodyMedium)
+                        PriorityChip(priority = task.priority)
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Người làm:", style = MaterialTheme.typography.bodyMedium)
+                        if (assignee != null) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                AvatarInitials(name = assignee.name, size = 26.dp)
+                                Spacer(Modifier.width(8.dp))
+                                Text(assignee.name, fontWeight = FontWeight.SemiBold)
+                            }
+                        } else {
+                            Text("Chưa phân công", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Hạn chót:", style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = task.dueDate?.let { formatDateTime(it) } ?: "Không có",
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Mô tả",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = task.description.ifEmpty { "Chưa có mô tả chi tiết cho công việc này." },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (task.description.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
                 )
             }
-        } ?: run {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            HorizontalDivider()
+
+            CommentSection(taskId = vm.taskId)
+            Spacer(Modifier.height(16.dp))
+        }
+
+        if (showEditSheet) {
+            EditTaskBottomSheet(
+                task = task,
+                members = members,
+                onDismiss = { showEditSheet = false },
+                onSave = { title, desc, priority, dueDate, assigneeId ->
+                    vm.updateTask(title, desc, priority, dueDate, assigneeId)
+                    showEditSheet = false
+                }
+            )
+        }
+    } ?: run {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
     }
 

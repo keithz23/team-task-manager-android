@@ -13,6 +13,7 @@ import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.core.model.TeamRole
 import com.example.taskmanager.core.session.AuthState
 import com.example.taskmanager.core.session.SessionManager
+import com.example.taskmanager.navigation.Board
 import com.example.taskmanager.navigation.TaskDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,7 +36,8 @@ class TaskDetailViewModel @Inject constructor(
     private val session: SessionManager
 ) : ViewModel() {
 
-    val taskId : String = savedState.toRoute<TaskDetail>().taskId
+    private val route: TaskDetail? = runCatching { savedState.toRoute<TaskDetail>() }.getOrNull()
+    val taskId : String = route?.taskId ?: savedState.get<String>("taskId") ?: ""
 
     val task: StateFlow<TaskWithAssignee?> = repo.observe(taskId)
         .stateIn(
