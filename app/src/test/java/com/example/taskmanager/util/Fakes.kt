@@ -8,6 +8,7 @@ import com.example.taskmanager.core.database.entity.UserEntity
 import com.example.taskmanager.core.database.relation.CommentWithAuthor
 import com.example.taskmanager.core.database.relation.MemberWithUser
 import com.example.taskmanager.core.database.relation.ProjectWithCount
+import com.example.taskmanager.core.database.relation.TaskWithAssignee
 import com.example.taskmanager.core.database.relation.TeamWithCounts
 import com.example.taskmanager.core.model.TeamRole
 import com.example.taskmanager.feature.auth.AuthRepository
@@ -116,64 +117,112 @@ class FakeAuthRepository(
     }
 }
 
+/**
+ * TeamRepository giả cho Unit Test.
+ */
 class FakeTeamRepository(
     initialTeams: List<TeamWithCounts> = emptyList(),
     initialProjects: Map<String, List<ProjectWithCount>> = emptyMap(),
     initialMembers: Map<String, List<MemberWithUser>> = emptyMap(),
-    initialUsers: List<UserEntity> = emptyList(),
 ) : TeamRepository {
+    val teamCountFlow = MutableStateFlow(initialTeams.size)
+    var teamCountError: Throwable? = null
 
     val teamsFlow = MutableStateFlow(initialTeams)
-    val projectsMap = mutableMapOf<String,
-            MutableStateFlow<List<ProjectWithCount>>>().apply {
-        initialProjects.forEach { (teamId, list) -> put(teamId, MutableStateFlow(list)) }
-    }
-    val membersMap = mutableMapOf<String, MutableStateFlow<List<MemberWithUser>>>().apply {
-        initialMembers.forEach { (teamId, list) -> put(teamId, MutableStateFlow(list)) }
-    }
-    val users = mutableListOf<UserEntity>().apply { addAll(initialUsers) }
+    val projectsFlow = MutableStateFlow(initialProjects)
+    val membersFlow = MutableStateFlow(initialMembers)
 
-    var failCreateTeam: Throwable? = null
-    var failCreateProject: Throwable? = null
-    var failAddMember: Throwable? = null
+    override fun observeTeamCount(userId: String): Flow<Int> = kotlinx.coroutines.flow.flow {
+        teamCountError?.let { throw it }
+        teamCountFlow.collect { emit(it) }
+    }
 
-    override fun observeTeams(): Flow<List<TeamWithCounts>> = teamsFlow
+    override fun observeTeams(): Flow<List<TeamWithCounts>> =
+        teamsFlow
 
     override fun observeProjects(teamId: String): Flow<List<ProjectWithCount>> =
-        projectsMap.getOrPut(teamId) { MutableStateFlow(emptyList()) }
+        projectsFlow.map { it[teamId].orEmpty() }
 
     override fun observeMembers(teamId: String): Flow<List<MemberWithUser>> =
-        membersMap.getOrPut(teamId) { MutableStateFlow(emptyList()) }
+        membersFlow.map { it[teamId].orEmpty() }
 
-    override suspend fun createTeam(name: String, firstProject: String?): Result<String> {
-        failCreateTeam?.let { return Result.failure(it) }
-        val id = "team-${teamsFlow.value.size + 1}"
-        val newTeam = TeamWithCounts(id = id, name = name, role = TeamRole.OWNER, memberCount = 1)
-        teamsFlow.update { it +newTeam }
-        if (!firstProject.isNullOrBlank()){
-            createProject(id,firstProject)
-        }
-        return Result.success(id)
-    }
+    override suspend fun createTeam(name: String, firstProject: String?): Result<String> =
+        Result.success("t-1")
 
     override suspend fun createProject(teamId: String, name: String): Result<Unit> {
-        failCreateProject?.let{return Result.failure(it) }
-        val flow = projectsMap.getOrPut(teamId) {MutableStateFlow(emptyList())}
-        val  newProject = ProjectWithCount(id = "p-${flow.value.size +1}", name, taskCount = 0)
-        flow.update { it +newProject }
+        val current = projectsFlow.value.toMutableMap()
+        val list = current[teamId].orEmpty().toMutableList()
+        list.add(ProjectWithCount(id = "p-${list.size + 1}", name = name, taskCount = 0))
+        current[teamId] = list
+        projectsFlow.value = current
         return Result.success(Unit)
     }
 
     override suspend fun addMemberByEmail(teamId: String, email: String): Result<Unit> {
-        failAddMember?.let { return Result.failure(it) }
-        val user = users.find { it.email== email } ?: UserEntity(id = "u-${email.take(3)}", name = email.substringBefore("@"), email = email, passwordHash = "")
-        val flow = membersMap.getOrPut(teamId){ MutableStateFlow(emptyList()) }
-        val  member = MemberWithUser(TeamMemberEntity(teamId, user.id, TeamRole.MEMBER), user)
-        flow.update { (it + member) }
-        return Result.success((Unit))
+        val current = membersFlow.value.toMutableMap()
+        val list = current[teamId].orEmpty().toMutableList()
+        val user = UserEntity(id = "u-${list.size + 1}", name = email, email = email, passwordHash = "")
+        val member = MemberWithUser(
+            member = TeamMemberEntity(teamId = teamId, userId = user.id, role = TeamRole.MEMBER),
+            user = user,
+        )
+        list.add(member)
+        current[teamId] = list
+        membersFlow.value = current
+        return Result.success(Unit)
     }
 
-    override suspend fun findUserByEmail(email: String): Result<Boolean> {
-        return Result.success(users.any { it.email == email })
+    override suspend fun findUserByEmail(email: String): Result<Boolean> = Result.success(true)
+
+    override suspend fun existsByTeamAndName(teamId: String, name: String): Result<Boolean> {
+        val projects = projectsFlow.value[teamId].orEmpty()
+        return Result.success(projects.any { it.name.equals(name, ignoreCase = true) })
     }
+}
+
+/**
+ * TaskRepository giả cho Unit Test.
+ */
+class FakeTaskRepository : com.example.taskmanager.core.data.TaskRepository {
+    val completedTaskCountFlow = MutableStateFlow(0)
+    var completedTaskCountError: Throwable? = null
+    val mineTasksFlow = MutableStateFlow<List<TaskWithAssignee>>(emptyList())
+
+    override fun observeCompletedTaskCount(userId: String): Flow<Int> =
+        kotlinx.coroutines.flow.flow {
+            completedTaskCountError?.let { throw it }
+            completedTaskCountFlow.collect { emit(it) }
+        }
+
+    override fun observeByStatus(
+        projectId: String,
+        status: com.example.taskmanager.core.model.TaskStatus
+    ): Flow<List<com.example.taskmanager.core.database.relation.TaskWithAssignee>> =
+        kotlinx.coroutines.flow.flowOf(emptyList())
+
+    override fun observeCounts(projectId: String): Flow<List<com.example.taskmanager.core.database.dao.StatusCount>> =
+        kotlinx.coroutines.flow.flowOf(emptyList())
+
+    override fun observeMine(): Flow<List<TaskWithAssignee>> =
+        mineTasksFlow
+
+    override fun observe(taskId: String): Flow<com.example.taskmanager.core.database.relation.TaskWithAssignee?> =
+        kotlinx.coroutines.flow.flowOf(null)
+
+    override suspend fun create(
+        projectId: String, title: String, description: String?,
+        priority: com.example.taskmanager.core.model.Priority, dueDate: Long?, assigneeId: String?,
+    ): Result<Unit> = Result.success(Unit)
+
+    override suspend fun update(task: com.example.taskmanager.core.database.entity.TaskEntity): Result<Unit> =
+        Result.success(Unit)
+
+    override suspend fun updateStatus(
+        id: String,
+        status: com.example.taskmanager.core.model.TaskStatus
+    ) {
+    }
+
+    override suspend fun assign(id: String, userId: String?) {}
+    override suspend fun delete(id: String) {}
 }

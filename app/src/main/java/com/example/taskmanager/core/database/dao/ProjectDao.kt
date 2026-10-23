@@ -28,9 +28,22 @@ interface ProjectDao {
      * @param teamId Identity của nhóm cần lấy danh sách dự án.
      * @return Một [Flow] phát ra danh sách [ProjectWithCount] chứa thông tin tóm tắt và số lượng task của từng dự án.
      */
-    @Query("""
+    @Query(
+        """
         SELECT p.id, p.name, (SELECT COUNT(*) FROM tasks WHERE projectId = p.id) AS taskCount
         FROM projects p WHERE p.teamId = :teamId
-    """)
+    """
+    )
     fun observeByTeam(teamId: String): Flow<List<ProjectWithCount>>
+
+
+    @Query(
+        """
+    SELECT EXISTS(
+        SELECT 1 FROM projects
+        WHERE teamId = :teamId AND name = :name
+    )
+"""
+    )
+    suspend fun existsByTeamAndName(teamId: String, name: String): Boolean
 }

@@ -33,7 +33,8 @@ val TaskStatus.label: String
 
 /**
  * Thẻ task cho Board và My tasks: tiêu đề, độ ưu tiên, hạn chót, người được giao.
- * [showStatus] = true để hiện thêm nhãn trạng thái (dùng ở My tasks, nơi task các trạng thái nằm chung).
+ * [showStatus] = true để hiện thêm nhãn trạng thái.
+ * [showProject] = true để hiện thêm tên dự án.
  * Gắn testTag qua modifier nếu UI test cần.
  */
 @Composable
@@ -42,6 +43,7 @@ fun TaskCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     showStatus: Boolean = false,
+    showProject: Boolean = false,
 ) {
     val task = item.task
     Card(
@@ -51,28 +53,52 @@ fun TaskCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = CardDefaults.outlinedCardBorder(),
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                task.title,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                Spacer(Modifier.width(8.dp))
                 PriorityChip(task.priority)
-                if (showStatus) {
-                    Spacer(Modifier.width(8.dp))
-                    StatusLabel(task.status)
+            }
+
+            val subtitleText = buildString {
+                if (showProject && item.project != null) {
+                    append(item.project.name)
                 }
-                Spacer(Modifier.weight(1f))
-                task.dueDate?.let {
+                if (task.dueDate != null) {
+                    if (isNotEmpty()) append(" · ")
+                    append("Hạn ${formatDue(task.dueDate)}")
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (subtitleText.isNotEmpty()) {
                     Text(
-                        formatDue(it),
+                        text = subtitleText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Spacer(Modifier.width(8.dp))
                 }
+                if (showStatus) {
+                    if (subtitleText.isNotEmpty()) Spacer(Modifier.width(8.dp))
+                    StatusLabel(task.status)
+                }
+                Spacer(Modifier.weight(1f))
                 item.assignee?.let { AvatarInitials(it.name, size = 28.dp) }
             }
         }

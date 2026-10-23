@@ -2,6 +2,7 @@ package com.example.taskmanager.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.taskmanager.core.database.entity.TeamEntity
@@ -16,14 +17,18 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface TeamDao {
+    @Query(
+        """
+    SELECT EXISTS(
+        SELECT 1 FROM teams
+        WHERE name = :name
+    )
+"""
+    )
+    suspend fun existsByName(name: String): Boolean
 
-    /**
-     * Thêm mới một nhóm vào cơ sở dữ liệu.
-     *
-     * @param t Đối tượng [TeamEntity] cần thêm mới.
-     */
-    @Insert
-    suspend fun insertTeam(t: TeamEntity)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertTeam(team: TeamEntity)
 
     /**
      * Thêm mới một bản ghi thành viên nhóm vào cơ sở dữ liệu.
@@ -53,12 +58,14 @@ interface TeamDao {
      * @param userId Identity của người dùng cần lấy danh sách nhóm.
      * @return Một [Flow] phát ra danh sách [TeamWithCounts] được sắp xếp theo thời gian tạo giảm dần.
      */
-    @Query("""
+    @Query(
+        """
         SELECT t.id, t.name, tm.role,
                (SELECT COUNT(*) FROM team_members WHERE teamId = t.id) AS memberCount
         FROM teams t JOIN team_members tm ON tm.teamId = t.id
         WHERE tm.userId = :userId ORDER BY t.createdAt DESC
-    """)
+    """
+    )
     fun observeTeamsOf(userId: String): Flow<List<TeamWithCounts>>
 
     /**
@@ -81,4 +88,12 @@ interface TeamDao {
      */
     @Query("SELECT role FROM team_members WHERE teamId = :teamId AND userId = :userId")
     suspend fun roleOf(teamId: String, userId: String): TeamRole?
+
+    /**
+     * Lắng nghe tổng số nhóm của một người dùng cụ thể theo thời gian thực.
+     * @param userId Identity của người dùng.
+     * @return Một [Flow] phát ra tổng số nhóm của người dùng.
+     * */
+    @Query("SELECT COUNT(*) FROM team_members WHERE userId = :userId")
+    fun observeTeamCount(userId: String): Flow<Int>
 }

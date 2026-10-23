@@ -14,35 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.taskmanager.core.database.entity.UserEntity
-import com.example.taskmanager.core.ui.theme.Amber50
-import com.example.taskmanager.core.ui.theme.Amber700
-import com.example.taskmanager.core.ui.theme.Blue50
-import com.example.taskmanager.core.ui.theme.Blue600
-import com.example.taskmanager.core.ui.theme.Green50
-import com.example.taskmanager.core.ui.theme.Green700
-import com.example.taskmanager.core.ui.theme.Indigo50
-import com.example.taskmanager.core.ui.theme.Indigo700
-import com.example.taskmanager.core.ui.theme.Pink50
-import com.example.taskmanager.core.ui.theme.Pink700
-import com.example.taskmanager.core.ui.theme.Purple50
-import com.example.taskmanager.core.ui.theme.Purple700
-import com.example.taskmanager.core.ui.theme.Red50
-import com.example.taskmanager.core.ui.theme.Red700
-import com.example.taskmanager.core.ui.theme.TagColors
-import com.example.taskmanager.core.ui.theme.Teal50
-import com.example.taskmanager.core.ui.theme.Teal700
+import com.example.taskmanager.core.ui.theme.DarkAvatarPalette
+import com.example.taskmanager.core.ui.theme.LightAvatarPalette
+import com.example.taskmanager.core.ui.theme.LocalDarkTheme
 import kotlin.math.absoluteValue
-
-private val AvatarPalette = listOf(
-    TagColors(Blue50, Blue600),
-    TagColors(Green50, Green700),
-    TagColors(Amber50, Amber700),
-    TagColors(Red50, Red700),
-    TagColors(Purple50, Purple700),
-    TagColors(Teal50, Teal700),
-    TagColors(Pink50, Pink700),
-    TagColors(Indigo50, Indigo700),
-)
 
 /** "Nguyễn Văn An" → "VA" (chữ đầu của 2 từ cuối). Tên rỗng → "?". */
 fun initialsOf(name: String): String =
@@ -58,7 +33,9 @@ fun initialsOf(name: String): String =
  */
 @Composable
 fun AvatarInitials(name: String, modifier: Modifier = Modifier, size: Dp = 32.dp) {
-    val colors = AvatarPalette[name.hashCode().absoluteValue % AvatarPalette.size]
+    val dark = LocalDarkTheme.current
+    val palette = if (dark) DarkAvatarPalette else LightAvatarPalette
+    val colors = palette[name.hashCode().absoluteValue % palette.size]
     val fontSize = with(LocalDensity.current) { (size * 0.4f).toSp() }
     Box(
         modifier = modifier.size(size).clip(CircleShape).background(colors.container),

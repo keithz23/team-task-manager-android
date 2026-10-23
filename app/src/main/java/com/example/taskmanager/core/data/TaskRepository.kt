@@ -12,6 +12,7 @@ interface TaskRepository {
     fun observeCounts(projectId: String): Flow<List<StatusCount>>
     fun observeMine(): Flow<List<TaskWithAssignee>>
     fun observe(taskId: String): Flow<TaskWithAssignee?>
+    fun observeCompletedTaskCount(userId: String): Flow<Int>
     suspend fun create(
         projectId: String, title: String, description: String?,
         priority: Priority, dueDate: Long?, assigneeId: String?

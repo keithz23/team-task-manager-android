@@ -6,20 +6,30 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +60,7 @@ fun NewTeamScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewTeamContent(
     state: NewTeamUiState,
@@ -60,76 +71,98 @@ fun NewTeamContent(
     onSubmit: () -> Unit,
     onBack: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(
-            text = "< Nhóm của tôi",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable(onClick = onBack),
-        )
-
-        Text("Tạo nhóm mới", style = MaterialTheme.typography.headlineSmall)
-
-        AppTextField(
-            value = state.name,
-            onValueChange = onNameChange,
-            label = "Tên nhóm",
-            placeholder = "Nhóm Đồ án Android",
-            error = state.nameError,
-            testTag = Tags.TEAM_NAME,
-        )
-
-        AppTextField(
-            value = state.firstProject,
-            onValueChange = onFirstProjectChange,
-            label = "Project đầu tiên",
-            placeholder = "Sprint đồ án",
-        )
-
-        Text(
-            text = "Thành viên (${1 + state.pendingEmails.size})",
-            style = MaterialTheme.typography.titleSmall,
-        )
-
-        MemberItemCard(name ="Bạn", role = "Owner")
-
-        state.pendingEmails.forEach { email ->
-            MemberItemCard(name = email, role = "Member")
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            OutlinedTextField(
-                value = state.emailInput,
-                onValueChange = onEmailInputChange,
-                placeholder = {Text("Email thành viên...")},
-                singleLine = true,
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.weight(1f),
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Nhóm",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Quay lại",
+                        )
+                    }
+                },
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                ),
             )
-            OutlinedButton(
-                onClick = onAddEmail,
-                shape = MaterialTheme.shapes.medium,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                modifier = Modifier.height(52.dp),
-            ) {
-                Text("Thêm", style = MaterialTheme.typography.labelLarge)
-            }
         }
-        Spacer(modifier = Modifier.weight(1f))
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text("Tạo nhóm mới", style = MaterialTheme.typography.headlineSmall)
 
-        PrimaryButton(
-            text = "Tạo nhóm",
-            onClick = onSubmit,
-            loading = state.isLoading,
-            modifier = Modifier.testTag(Tags.CREATE_TEAM_BUTTON)
-        )
+            AppTextField(
+                value = state.name,
+                onValueChange = onNameChange,
+                label = "Tên nhóm",
+                placeholder = "Nhóm Đồ án Android",
+                error = state.nameError,
+                testTag = Tags.TEAM_NAME,
+            )
+
+            AppTextField(
+                value = state.firstProject,
+                onValueChange = onFirstProjectChange,
+                label = "Project đầu tiên",
+                placeholder = "Sprint đồ án",
+            )
+
+            Text(
+                text = "Thành viên (${1 + state.pendingEmails.size})",
+                style = MaterialTheme.typography.titleSmall,
+            )
+
+            MemberItemCard(name = "Bạn", role = "Owner")
+
+            state.pendingEmails.forEach { email ->
+                MemberItemCard(name = email, role = "Member")
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedTextField(
+                    value = state.emailInput,
+                    onValueChange = onEmailInputChange,
+                    placeholder = { Text("Email thành viên...") },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedButton(
+                    onClick = onAddEmail,
+                    shape = MaterialTheme.shapes.medium,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.height(52.dp),
+                ) {
+                    Text("Thêm", style = MaterialTheme.typography.labelLarge)
+                }
+            }
+            Spacer(modifier = Modifier.weight(1f))
+
+            PrimaryButton(
+                text = "Tạo nhóm",
+                onClick = onSubmit,
+                loading = state.isLoading,
+                modifier = Modifier.testTag(Tags.CREATE_TEAM_BUTTON)
+            )
+        }
     }
 }
 
@@ -161,9 +194,9 @@ internal fun MemberItemCard(name: String, role: String) {
     }
 }
 
-@Preview(showBackground =  true)
+@Preview(showBackground = true)
 @Composable
-private fun NewTeamPreview(){
+private fun NewTeamPreview() {
     AppTheme {
         NewTeamContent(
             state = NewTeamUiState(name = "Nhóm đò án Android", firstProject = "Sprint đồ án"),

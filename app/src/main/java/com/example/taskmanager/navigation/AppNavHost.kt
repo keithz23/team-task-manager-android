@@ -2,6 +2,7 @@ package com.example.taskmanager.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,7 +21,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -42,7 +42,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.taskmanager.core.session.AuthState
 import com.example.taskmanager.core.session.SessionManager
 import com.example.taskmanager.core.ui.LocalSnackbarHostState
-import com.example.taskmanager.core.ui.theme.AppTheme
 import com.example.taskmanager.feature.auth.navigation.authGraph
 import com.example.taskmanager.feature.team.navigation.teamGraph
 import com.example.taskmanager.navigation.navigation.taskGraph
@@ -65,27 +64,25 @@ fun AppNavHost(session: SessionManager) {
     val auth by session.authState.collectAsStateWithLifecycle(initialValue = AuthState.Loading)
     val snackbarHostState = remember { SnackbarHostState() }
 
-    AppTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            when (auth) {
-                AuthState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        when (auth) {
+            AuthState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
+            }
 
-                else -> {
-                    val loggedIn = auth is AuthState.LoggedIn
-                    key(loggedIn) { MainScaffold(loggedIn, snackbarHostState) }
-                }
+            else -> {
+                val loggedIn = auth is AuthState.LoggedIn
+                key(loggedIn) { MainScaffold(loggedIn, snackbarHostState) }
             }
         }
     }
@@ -106,6 +103,7 @@ private fun MainScaffold(loggedIn: Boolean, snackbarHostState: SnackbarHostState
                         contentColor = MaterialTheme.colorScheme.onError,
                         actionColor = MaterialTheme.colorScheme.onError,
                         shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.imePadding(),
                     )
                 }
             },
@@ -113,7 +111,7 @@ private fun MainScaffold(loggedIn: Boolean, snackbarHostState: SnackbarHostState
             bottomBar = {
                 if (tabs.any { it.isSelected(dest) }) {
                     NavigationBar(
-                        containerColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 0.dp
                     ) {
                         tabs.forEach { tab ->
