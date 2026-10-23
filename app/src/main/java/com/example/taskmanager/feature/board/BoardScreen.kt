@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.core.ui.component.TaskCard
+import com.example.taskmanager.core.ui.component.label
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,11 +97,7 @@ fun BoardScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 tabs.forEach { status ->
-                    val tabTitle = when (status) {
-                        TaskStatus.TODO -> "Todo"
-                        TaskStatus.DOING -> "Doing"
-                        TaskStatus.DONE -> "Done"
-                    }
+                    val tabTitle = status.label
                     val isSelected = selectedStatus == status
 
                     Tab(
@@ -118,13 +115,7 @@ fun BoardScreen(
             }
 
             Text(
-                text = "${
-                    when (selectedStatus) {
-                        TaskStatus.TODO -> "Cần làm"
-                        TaskStatus.DOING -> "Đang làm"
-                        TaskStatus.DONE -> "Hoàn thành"
-                    }
-                } (${taskList.size})",
+                text = "${selectedStatus.label} (${taskList.size})",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
             )

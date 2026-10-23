@@ -64,10 +64,10 @@ class BoardScreenTest {
         // Nút Tạo task mới
         composeRule.onNodeWithText("Tạo Task mới").assertIsDisplayed()
 
-        // 3 Tab Todo, Doing, Done
-        composeRule.onNodeWithText("Todo").assertIsDisplayed()
-        composeRule.onNodeWithText("Doing").assertIsDisplayed()
-        composeRule.onNodeWithText("Done").assertIsDisplayed()
+        // 3 Tab Cần làm, Đang làm, Hoàn thành
+        composeRule.onNodeWithText("Cần làm").assertIsDisplayed()
+        composeRule.onNodeWithText("Đang làm").assertIsDisplayed()
+        composeRule.onNodeWithText("Hoàn thành").assertIsDisplayed()
 
         // Task mẫu Todo từ SeedData
         composeRule.onNodeWithText("Thiết kế màn hình đăng nhập").assertIsDisplayed()
@@ -76,7 +76,7 @@ class BoardScreenTest {
     // 2. Chuyển sang tab Doing thì hiển thị task của tab Doing
     @Test
     fun clickDoingTab_showsDoingTask() {
-        composeRule.onNodeWithText("Doing").performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.onNodeWithText("Đang làm").performSemanticsAction(SemanticsActions.OnClick)
 
         composeRule.onNodeWithText("Viết API tạo task").assertIsDisplayed()
     }
@@ -84,7 +84,7 @@ class BoardScreenTest {
     // 3. Chuyển sang tab Done thì hiển thị task của tab Done
     @Test
     fun clickDoneTab_showsDoneTask() {
-        composeRule.onNodeWithText("Done").performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.onNodeWithText("Hoàn thành").performSemanticsAction(SemanticsActions.OnClick)
 
         composeRule.onNodeWithText("Khởi tạo project").assertIsDisplayed()
     }
