@@ -5,8 +5,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,7 +38,8 @@ class NewTeamScreenTest {
     @get:Rule(order = 1)
     val composeRule = createAndroidComposeRule<HiltTestActivity>()
 
-    @Inject lateinit var session: SessionManager
+    @Inject
+    lateinit var session: SessionManager
 
     private var onDoneCalled = false
 
@@ -66,10 +69,16 @@ class NewTeamScreenTest {
 
     @Test
     fun createTeam_emptyName_showsValidationError() {
+        // Click trực tiếp vào nút Tạo nhóm
         composeRule.onNodeWithTag(Tags.CREATE_TEAM_BUTTON)
-            .performSemanticsAction(SemanticsActions.OnClick)
+            .performClick()
 
-        composeRule.onNodeWithText("Tên nhóm không được để trống").assertIsDisplayed()
+        // Chờ Compose cập nhật state hiển thị lỗi
+        composeRule.waitForIdle()
+
+        // Kiểm tra thông báo lỗi hiển thị
+        composeRule.onNodeWithText("Tên nhóm không được bỏ trống")
+            .assertIsDisplayed()
     }
 
     @Test
@@ -84,8 +93,8 @@ class NewTeamScreenTest {
 
     @Test
     fun clickBack_triggersOnDone() {
-        composeRule.onNodeWithText("< Nhóm của tôi")
-            .performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.onNodeWithContentDescription("Quay lại")
+            .performClick()
 
         assertTrue(onDoneCalled)
     }

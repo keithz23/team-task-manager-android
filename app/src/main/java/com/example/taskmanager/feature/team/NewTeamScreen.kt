@@ -82,7 +82,7 @@ fun NewTeamContent(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBack, modifier = Modifier.testTag(Tags.BACK_BUTTON)) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Quay lại",

@@ -24,4 +24,6 @@ object Tags {
     // Team (NewTeamScreen)
     const val TEAM_NAME = "team_name"
     const val CREATE_TEAM_BUTTON = "create_team_button"
+
+    const val BACK_BUTTON = "back_button"
 }
