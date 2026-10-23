@@ -1,13 +1,17 @@
 package com.example.taskmanager.core.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
 private val Light = lightColorScheme(
     primary = Blue600, onPrimary = Color.White,
@@ -56,14 +60,29 @@ private val Dark = darkColorScheme(
 /** Cờ chế độ tối, để tagColors() và các component tự chọn màu. */
 val LocalDarkTheme = staticCompositionLocalOf { false }
 
+/**
+ * Theme của app.
+ * @param dynamicColor true = trên Android 12+ lấy màu theo hình nền máy (Material You) thay cho
+ * bảng màu riêng. Mặc định TẮT để giữ màu thương hiệu. Màu Priority/Status/avatar (tagColors)
+ * vẫn giữ nguyên dù bật, vì chúng mang ý nghĩa (đỏ = Cao…).
+ */
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> Dark
+        else -> Light
+    }
     CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
         MaterialTheme(
-            colorScheme = if (darkTheme) Dark else Light,
+            colorScheme = colorScheme,
             typography = AppTypography,
             shapes = AppShapes,
             content = content,
