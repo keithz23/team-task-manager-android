@@ -25,6 +25,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material3.SnackbarHostState
+import com.example.taskmanager.core.ui.LocalSnackbarHostState
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -44,12 +47,15 @@ class BoardScreenTest {
         // Khởi chạy giao diện BoardScreen thông qua NavHost thật
         composeRule.setContent {
             AppTheme {
-                val nav = rememberNavController()
-                NavHost(
-                    navController = nav,
-                    startDestination = Board(projectId = SeedData.PROJECT_ID, teamId = SeedData.TEAM_ID)
-                ) {
-                    taskGraph(nav)
+                // Board và TaskDetail hiện thông báo qua snackbar dùng chung (AppNavHost cung cấp trong app thật)
+                CompositionLocalProvider(LocalSnackbarHostState provides SnackbarHostState()) {
+                    val nav = rememberNavController()
+                    NavHost(
+                        navController = nav,
+                        startDestination = Board(projectId = SeedData.PROJECT_ID, teamId = SeedData.TEAM_ID)
+                    ) {
+                        taskGraph(nav)
+                    }
                 }
             }
         }
