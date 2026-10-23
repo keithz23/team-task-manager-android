@@ -1,6 +1,10 @@
 package com.example.taskmanager
 
 import app.cash.turbine.test
+import com.example.taskmanager.core.database.entity.TaskEntity
+import com.example.taskmanager.core.database.relation.TaskWithAssignee
+import com.example.taskmanager.core.model.Priority
+import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.feature.profile.ProfileViewModel
 import com.example.taskmanager.util.FakeAuthRepository
 import com.example.taskmanager.util.FakeTaskRepository
@@ -26,9 +30,23 @@ class ProfileViewModelTest {
     val mainRule = MainDispatcherRule()
 
     private val userAn = testUser("u-an", "Nguyễn An")
+    private val sampleTask = TaskWithAssignee(
+        task = TaskEntity(
+            id = "t-1",
+            projectId = "p-1",
+            title = "Task kiểm thử",
+            description = "Mô tả task",
+            status = TaskStatus.TODO,
+            priority = Priority.MEDIUM,
+            dueDate = System.currentTimeMillis(),
+            assigneeId = userAn.id
+        ),
+        assignee = userAn
+    )
+
     private val authRepo = FakeAuthRepository(initialUsers = listOf(userAn), initialCurrentUserId = userAn.id)
     private val teamRepo = FakeTeamRepository()
-    private val taskRepo = FakeTaskRepository()
+    private val taskRepo = FakeTaskRepository(listOf(sampleTask))
 
     private fun TestScope.createVm(): ProfileViewModel {
         val vm = ProfileViewModel(authRepo, teamRepo, taskRepo)

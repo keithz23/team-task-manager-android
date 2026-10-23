@@ -1,8 +1,11 @@
 package com.example.taskmanager.util
 
 import com.example.taskmanager.core.data.CommentRepository
+import com.example.taskmanager.core.data.TaskRepository
 import com.example.taskmanager.core.data.TeamRepository
+import com.example.taskmanager.core.database.dao.StatusCount
 import com.example.taskmanager.core.database.entity.CommentEntity
+import com.example.taskmanager.core.database.entity.TaskEntity
 import com.example.taskmanager.core.database.entity.TeamMemberEntity
 import com.example.taskmanager.core.database.entity.UserEntity
 import com.example.taskmanager.core.database.relation.CommentWithAuthor
@@ -10,11 +13,15 @@ import com.example.taskmanager.core.database.relation.MemberWithUser
 import com.example.taskmanager.core.database.relation.ProjectWithCount
 import com.example.taskmanager.core.database.relation.TaskWithAssignee
 import com.example.taskmanager.core.database.relation.TeamWithCounts
+import com.example.taskmanager.core.model.Priority
+import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.core.model.TeamRole
 import com.example.taskmanager.feature.auth.AuthRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
@@ -161,7 +168,8 @@ class FakeTeamRepository(
     override suspend fun addMemberByEmail(teamId: String, email: String): Result<Unit> {
         val current = membersFlow.value.toMutableMap()
         val list = current[teamId].orEmpty().toMutableList()
-        val user = UserEntity(id = "u-${list.size + 1}", name = email, email = email, passwordHash = "")
+        val user =
+            UserEntity(id = "u-${list.size + 1}", name = email, email = email, passwordHash = "")
         val member = MemberWithUser(
             member = TeamMemberEntity(teamId = teamId, userId = user.id, role = TeamRole.MEMBER),
             user = user,
@@ -183,46 +191,147 @@ class FakeTeamRepository(
 /**
  * TaskRepository giả cho Unit Test.
  */
-class FakeTaskRepository : com.example.taskmanager.core.data.TaskRepository {
-    val completedTaskCountFlow = MutableStateFlow(0)
-    var completedTaskCountError: Throwable? = null
-    val mineTasksFlow = MutableStateFlow<List<TaskWithAssignee>>(emptyList())
+class FakeTaskRepository(
+    initialTasks: List<TaskWithAssignee> = emptyList()
+) : TaskRepository {
 
-    override fun observeCompletedTaskCount(userId: String): Flow<Int> =
-        kotlinx.coroutines.flow.flow {
-            completedTaskCountError?.let { throw it }
-            completedTaskCountFlow.collect { emit(it) }
+    val tasks = MutableStateFlow(initialTasks)
+
+    val createdCalls = mutableListOf<TaskEntity>()
+
+    val completedTaskCountFlow = MutableStateFlow(0)
+
+    var completedTaskCountError: Throwable? = null
+
+    val mineTasksFlow =
+        MutableStateFlow<List<TaskWithAssignee>>(emptyList())
+
+    override fun observeCompletedTaskCount(
+        userId: String
+    ): Flow<Int> = flow {
+        completedTaskCountError?.let { throw it }
+
+        completedTaskCountFlow.collect {
+            emit(it)
         }
+    }
 
     override fun observeByStatus(
         projectId: String,
-        status: com.example.taskmanager.core.model.TaskStatus
-    ): Flow<List<com.example.taskmanager.core.database.relation.TaskWithAssignee>> =
-        kotlinx.coroutines.flow.flowOf(emptyList())
+        status: TaskStatus
+    ): Flow<List<TaskWithAssignee>> {
+        return tasks.map { list ->
+            list.filter {
+                it.task.projectId == projectId &&
+                        it.task.status == status
+            }
+        }
+    }
 
-    override fun observeCounts(projectId: String): Flow<List<com.example.taskmanager.core.database.dao.StatusCount>> =
-        kotlinx.coroutines.flow.flowOf(emptyList())
+    override fun observeCounts(
+        projectId: String
+    ): Flow<List<StatusCount>> {
+        return flowOf(emptyList())
+    }
 
-    override fun observeMine(): Flow<List<TaskWithAssignee>> =
-        mineTasksFlow
+    override fun observeMine(): Flow<List<TaskWithAssignee>> {
+        return mineTasksFlow
+    }
 
-    override fun observe(taskId: String): Flow<com.example.taskmanager.core.database.relation.TaskWithAssignee?> =
-        kotlinx.coroutines.flow.flowOf(null)
+    override fun observe(
+        taskId: String
+    ): Flow<TaskWithAssignee?> {
+        return tasks.map { list ->
+            list.firstOrNull {
+                it.task.id == taskId
+            }
+        }
+    }
 
     override suspend fun create(
-        projectId: String, title: String, description: String?,
-        priority: com.example.taskmanager.core.model.Priority, dueDate: Long?, assigneeId: String?,
-    ): Result<Unit> = Result.success(Unit)
+        projectId: String,
+        title: String,
+        description: String?,
+        priority: Priority,
+        dueDate: Long?,
+        assigneeId: String?
+    ): Result<Unit> {
 
-    override suspend fun update(task: com.example.taskmanager.core.database.entity.TaskEntity): Result<Unit> =
-        Result.success(Unit)
+        val task = TaskEntity(
+            id = "created-${createdCalls.size + 1}",
+            projectId = projectId,
+            title = title,
+            description = String(description?.toCharArray() ?: charArrayOf()),
+            status = TaskStatus.TODO,
+            priority = priority,
+            dueDate = dueDate,
+            assigneeId = assigneeId
+        )
+
+        createdCalls.add(task)
+
+        tasks.value = tasks.value + TaskWithAssignee(
+            task = task,
+            assignee = null
+        )
+
+        return Result.success(Unit)
+    }
+
+    override suspend fun update(
+        task: TaskEntity
+    ): Result<Unit> {
+
+        tasks.value = tasks.value.map {
+            if (it.task.id == task.id) {
+                it.copy(task = task)
+            } else {
+                it
+            }
+        }
+
+        return Result.success(Unit)
+    }
 
     override suspend fun updateStatus(
         id: String,
-        status: com.example.taskmanager.core.model.TaskStatus
+        status: TaskStatus
     ) {
+        tasks.value = tasks.value.map {
+            if (it.task.id == id) {
+                it.copy(
+                    task = it.task.copy(
+                        status = status
+                    )
+                )
+            } else {
+                it
+            }
+        }
     }
 
-    override suspend fun assign(id: String, userId: String?) {}
-    override suspend fun delete(id: String) {}
+    override suspend fun assign(
+        id: String,
+        userId: String?
+    ) {
+        tasks.value = tasks.value.map {
+            if (it.task.id == id) {
+                it.copy(
+                    task = it.task.copy(
+                        assigneeId = userId
+                    )
+                )
+            } else {
+                it
+            }
+        }
+    }
+
+    override suspend fun delete(
+        id: String
+    ) {
+        tasks.value = tasks.value.filter {
+            it.task.id != id
+        }
+    }
 }

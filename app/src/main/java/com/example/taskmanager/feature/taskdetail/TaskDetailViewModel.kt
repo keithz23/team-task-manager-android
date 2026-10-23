@@ -35,7 +35,8 @@ class TaskDetailViewModel @Inject constructor(
     private val session: SessionManager
 ) : ViewModel() {
 
-    val taskId : String = savedState.toRoute<TaskDetail>().taskId
+    val taskId: String = savedState.get<String>("taskId")
+        ?: savedState.toRoute<TaskDetail>().taskId
 
     val task: StateFlow<TaskWithAssignee?> = repo.observe(taskId)
         .stateIn(

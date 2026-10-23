@@ -101,7 +101,7 @@ fun TaskDetailScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại",
+                            contentDescription = "Quay lại trang trước",
                         )
                     }
                 },
@@ -158,7 +158,7 @@ fun TaskDetailScreen(
                         shape = MaterialTheme.shapes.small,
                     ) {
                         Text(
-                            text = "🔒 Bạn đang xem ở chế độ chỉ đọc. Chỉ người được giao việc hoặc Trưởng nhóm mới có quyền chỉnh sửa.",
+                            text = "🔒 Bạn đang ở chế độ chỉ đọc. Chỉ người thực hiện hoặc Trưởng nhóm mới có quyền chỉnh sửa.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(10.dp),
@@ -217,7 +217,7 @@ fun TaskDetailScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Người làm:", style = MaterialTheme.typography.bodyMedium)
+                            Text("Người thực hiện:", style = MaterialTheme.typography.bodyMedium)
                             if (assignee != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     AvatarInitials(name = assignee.name, size = 26.dp)
@@ -241,7 +241,7 @@ fun TaskDetailScreen(
                         ) {
                             Text("Hạn chót:", style = MaterialTheme.typography.bodyMedium)
                             Text(
-                                text = task.dueDate?.let { formatDateTime(it) } ?: "Không có",
+                                text = task.dueDate?.let { formatDateTime(it) } ?: "Chưa thiết lập",
                                 fontWeight = FontWeight.Medium,
                             )
                         }
@@ -255,7 +255,7 @@ fun TaskDetailScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = task.description.ifEmpty { "Chưa có mô tả chi tiết cho công việc này." },
+                        text = task.description.ifEmpty { "Chưa có mô tả cho công việc này." },
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (task.description.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     )
@@ -307,7 +307,7 @@ fun TaskDetailScreen(
                 showConfirmDoneDialog = false
                 vm.updateStatus(TaskStatus.DONE)
             },
-            dialogTitle = "Hoàn thành công việc",
+            dialogTitle = "Xác nhận hoàn thành",
             dialogText = "Bạn có chắc chắn muốn đánh dấu công việc này là đã hoàn thành không?",
             confirmText = "Hoàn thành",
             dismissText = "Hủy",
@@ -357,22 +357,22 @@ private fun EditTaskBottomSheet(
                     title = it
                     titleError = null
                 },
-                label = "Tiêu đề công việc",
-                placeholder = "Nhập tiêu đề...",
+                label = "Tên công việc",
+                placeholder = "Nhập tên công việc...",
                 error = titleError,
             )
             AppTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = "Mô tả",
-                placeholder = "Nhập mô tả...",
+                label = "Mô tả chi tiết",
+                placeholder = "Nhập mô tả cho công việc...",
                 singleLine = false,
                 minLines = 3,
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "Mức độ ưu tiên",
+                    text = "Độ ưu tiên",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                 )
@@ -395,7 +395,7 @@ private fun EditTaskBottomSheet(
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
                         onClick = { showDatePicker = true },
@@ -434,7 +434,7 @@ private fun EditTaskBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         FilterChip(
                             selected = (selectedAssigneeId == null),
@@ -459,7 +459,7 @@ private fun EditTaskBottomSheet(
                 text = "Lưu thay đổi",
                 onClick = {
                     if (title.isBlank()) {
-                        titleError = "Tiêu đề không được để trống"
+                        titleError = "Tên công việc không được để trống"
                     } else {
                         onSave(
                             title.trim(),
@@ -486,7 +486,7 @@ private fun EditTaskBottomSheet(
                         showDatePicker = false
                     },
                 ) {
-                    Text("Chọn")
+                    Text("Xác nhận")
                 }
             },
             dismissButton = {

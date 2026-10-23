@@ -29,8 +29,10 @@ class BoardViewModel @Inject constructor(
     private val repo: TaskRepository,
     private val repoTeam: TeamRepository,
 ) : ViewModel() {
-    val projectId: String = savedState.toRoute<Board>().projectId
-    val teamId: String = savedState.toRoute<Board>().teamId
+    val projectId: String = savedState.get<String>("projectId")
+        ?: savedState.toRoute<Board>().projectId
+    val teamId: String = savedState.get<String>("teamId")
+        ?: savedState.toRoute<Board>().teamId
     private val _selectedStatus = MutableStateFlow(TaskStatus.TODO)
     val selectedStatus: StateFlow<TaskStatus> = _selectedStatus.asStateFlow()
 

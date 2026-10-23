@@ -97,9 +97,9 @@ fun BoardScreen(
             ) {
                 tabs.forEach { status ->
                     val tabTitle = when (status) {
-                        TaskStatus.TODO -> "Cần làm"
-                        TaskStatus.DOING -> "Đang làm"
-                        TaskStatus.DONE -> "Hoàn thành"
+                        TaskStatus.TODO -> "Todo"
+                        TaskStatus.DOING -> "Doing"
+                        TaskStatus.DONE -> "Done"
                     }
                     val isSelected = selectedStatus == status
 
