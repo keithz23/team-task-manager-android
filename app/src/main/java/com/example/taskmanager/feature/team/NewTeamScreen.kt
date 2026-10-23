@@ -40,6 +40,8 @@ import com.example.taskmanager.core.ui.component.AppTextField
 import com.example.taskmanager.core.ui.component.AvatarInitials
 import com.example.taskmanager.core.ui.component.PrimaryButton
 import com.example.taskmanager.core.ui.theme.AppTheme
+import com.example.taskmanager.core.ui.component.label
+import com.example.taskmanager.core.model.TeamRole
 
 @Composable
 fun NewTeamScreen(
@@ -126,10 +128,10 @@ fun NewTeamContent(
                 style = MaterialTheme.typography.titleSmall,
             )
 
-            MemberItemCard(name = "Bạn", role = "Owner")
+            MemberItemCard(name = "Bạn", role = TeamRole.OWNER.label)
 
             state.pendingEmails.forEach { email ->
-                MemberItemCard(name = email, role = "Member")
+                MemberItemCard(name = email, role = TeamRole.MEMBER.label)
             }
 
             Row(

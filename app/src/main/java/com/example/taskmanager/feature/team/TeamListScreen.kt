@@ -37,6 +37,7 @@ import com.example.taskmanager.core.ui.CollectMessages
 import com.example.taskmanager.core.ui.Tags
 import com.example.taskmanager.core.ui.component.PrimaryButton
 import com.example.taskmanager.core.ui.theme.AppTheme
+import com.example.taskmanager.core.ui.component.label
 
 @Composable
 fun TeamListScreen(
@@ -205,7 +206,7 @@ internal fun RoleBadge(role: TeamRole) {
         shape = MaterialTheme.shapes.small,
     ) {
         Text(
-            text = role.name,
+            text = role.label,
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         )

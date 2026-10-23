@@ -47,6 +47,7 @@ import com.example.taskmanager.core.ui.theme.AppTheme
 import com.example.taskmanager.core.database.entity.TeamMemberEntity
 import com.example.taskmanager.core.database.entity.UserEntity
 import com.example.taskmanager.core.model.TeamRole
+import com.example.taskmanager.core.ui.component.label
 
 @Composable
 fun TeamDetailScreen(
@@ -217,7 +218,7 @@ fun TeamDetailContent(
                                 modifier = Modifier.weight(1f),
                             )
                             Text(
-                                text = item.member.role.name,
+                                text = item.member.role.label,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
