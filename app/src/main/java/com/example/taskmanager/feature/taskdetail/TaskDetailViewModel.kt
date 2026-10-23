@@ -1,7 +1,6 @@
 package com.example.taskmanager.feature.taskdetail
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.taskmanager.core.data.TaskRepository
@@ -26,6 +25,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.taskmanager.core.ui.MessageViewModel
 
 @HiltViewModel
 class TaskDetailViewModel @Inject constructor(
@@ -33,7 +33,7 @@ class TaskDetailViewModel @Inject constructor(
     private val repo: TaskRepository,
     private val teamRepo: TeamRepository,
     private val session: SessionManager
-) : ViewModel() {
+) : MessageViewModel() {
 
     val taskId: String = savedState.get<String>("taskId")
         ?: savedState.toRoute<TaskDetail>().taskId
@@ -87,7 +87,8 @@ class TaskDetailViewModel @Inject constructor(
     val canDelete: StateFlow<Boolean> = isOwnerOrAdmin
 
     fun updateStatus(newStatus: TaskStatus) = viewModelScope.launch {
-        repo.updateStatus(taskId, newStatus)
+        runCatching { repo.updateStatus(taskId, newStatus) }
+            .onFailure { send("Không đổi được trạng thái") }
     }
 
     fun updateTask(
@@ -106,10 +107,17 @@ class TaskDetailViewModel @Inject constructor(
             assigneeId = assigneeId
         )
         repo.update(updated)
+            .onSuccess { send("Đã lưu thay đổi") }
+            .onFailure { send(it.message ?: "Không lưu được thay đổi") }
     }
 
+    /** Chỉ gọi [onSuccess] (quay lại màn trước) khi xoá thành công. */
     fun deleteTask(onSuccess: () -> Unit) = viewModelScope.launch {
-        repo.delete(taskId)
-        onSuccess()
+        runCatching { repo.delete(taskId) }
+            .onSuccess {
+                send("Đã xoá công việc")
+                onSuccess()
+            }
+            .onFailure { send("Không xoá được công việc") }
     }
 }

@@ -74,6 +74,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.FilterChipDefaults
 import com.example.taskmanager.core.ui.theme.tagColors
+import com.example.taskmanager.core.ui.CollectMessages
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,6 +89,7 @@ fun TaskDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showConfirmDoneDialog by remember { mutableStateOf(false) }
     var showEditSheet by remember { mutableStateOf(false) }
+    CollectMessages(vm.messages)
 
     Scaffold(
         topBar = {

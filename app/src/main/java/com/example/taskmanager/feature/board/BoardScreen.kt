@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.core.ui.component.TaskCard
 import com.example.taskmanager.core.ui.component.label
+import com.example.taskmanager.core.ui.CollectMessages
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +53,7 @@ fun BoardScreen(
     var showSheet by remember { mutableStateOf(false) }
     val selectedStatus by vm.selectedStatus.collectAsStateWithLifecycle()
     val tabs = listOf(TaskStatus.TODO, TaskStatus.DOING, TaskStatus.DONE)
+    CollectMessages(vm.messages)
 
     Scaffold(
         topBar = {

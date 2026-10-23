@@ -24,6 +24,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import app.cash.turbine.test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoardViewModelTest {
@@ -348,4 +349,24 @@ class BoardViewModelTest {
                 vm.projectName.value
             )
         }
+
+    @Test
+    fun createTask_success_sendsMessage() = runTest {
+        val vm = createVm()
+        vm.messages.test {
+            vm.createTask("Task mới", null, Priority.LOW, null, null)
+            assertEquals("Đã tạo công việc", awaitItem())
+        }
+    }
+
+    @Test
+    fun createTask_failure_sendsErrorMessage() = runTest {
+        val repo = createTaskRepository().apply { createError = IllegalStateException("Lỗi lưu") }
+        val vm = createVm(repo = repo)
+        vm.messages.test {
+            vm.createTask("Task mới", null, Priority.LOW, null, null)
+            assertEquals("Lỗi lưu", awaitItem())
+        }
+        assertEquals(0, repo.createdCalls.size)
+    }
 }

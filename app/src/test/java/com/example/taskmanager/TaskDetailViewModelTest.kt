@@ -28,6 +28,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import app.cash.turbine.test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TaskDetailViewModelTest {
@@ -159,5 +160,29 @@ class TaskDetailViewModelTest {
         assertEquals("Mô tả mới", updated.task.description)
         assertEquals(Priority.HIGH, updated.task.priority)
         assertEquals(userBinh.id, updated.task.assigneeId)
+    }
+
+    @Test
+    fun deleteTask_success_callsOnSuccess() = runTest {
+        val (vm, repo) = createVm(userRole = TeamRole.OWNER)
+        var backCalled = false
+        vm.messages.test {
+            vm.deleteTask { backCalled = true }
+            assertEquals("Đã xoá công việc", awaitItem())
+        }
+        assertTrue(backCalled)
+        assertTrue(repo.tasks.value.isEmpty())
+    }
+
+    @Test
+    fun deleteTask_failure_staysOnScreen() = runTest {
+        val (vm, repo) = createVm(userRole = TeamRole.OWNER)
+        repo.deleteError = IllegalStateException("DB lỗi")
+        var backCalled = false
+        vm.messages.test {
+            vm.deleteTask { backCalled = true }
+            assertEquals("Không xoá được công việc", awaitItem())
+        }
+        assertFalse(backCalled)
     }
 }
