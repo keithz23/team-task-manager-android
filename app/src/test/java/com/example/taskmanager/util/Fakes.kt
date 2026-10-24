@@ -139,6 +139,15 @@ class FakeTeamRepository(
     val projectsFlow = MutableStateFlow(initialProjects)
     val membersFlow = MutableStateFlow(initialMembers)
 
+    /** Các lần gọi createTeam(name, firstProject), để test kiểm tra tham số. */
+    val createdTeams = mutableListOf<Pair<String, String?>>()
+
+    /** Gán để createTeam() trả Result.failure. */
+    var createTeamError: Throwable? = null
+
+    /** Email trong tập này coi như không có tài khoản (findUserByEmail trả false). */
+    var unknownEmails: Set<String> = emptySet()
+
     override fun observeTeamCount(userId: String): Flow<Int> = kotlinx.coroutines.flow.flow {
         teamCountError?.let { throw it }
         teamCountFlow.collect { emit(it) }
@@ -153,8 +162,11 @@ class FakeTeamRepository(
     override fun observeMembers(teamId: String): Flow<List<MemberWithUser>> =
         membersFlow.map { it[teamId].orEmpty() }
 
-    override suspend fun createTeam(name: String, firstProject: String?): Result<String> =
-        Result.success("t-1")
+    override suspend fun createTeam(name: String, firstProject: String?): Result<String> {
+        createTeamError?.let { return Result.failure(it) }
+        createdTeams.add(name to firstProject)
+        return Result.success("t-1")
+    }
 
     override suspend fun createProject(teamId: String, name: String): Result<Unit> {
         val current = projectsFlow.value.toMutableMap()
@@ -180,7 +192,8 @@ class FakeTeamRepository(
         return Result.success(Unit)
     }
 
-    override suspend fun findUserByEmail(email: String): Result<Boolean> = Result.success(true)
+    override suspend fun findUserByEmail(email: String): Result<Boolean> =
+        Result.success(email !in unknownEmails)
 
     override suspend fun existsByTeamAndName(teamId: String, name: String): Result<Boolean> {
         val projects = projectsFlow.value[teamId].orEmpty()
