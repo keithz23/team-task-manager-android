@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.emptyFlow
 
 @Singleton
 class TeamRepositoryImpl @Inject constructor(
@@ -32,7 +33,13 @@ class TeamRepositoryImpl @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeTeams(): Flow<List<TeamWithCounts>> =
         session.authState.flatMapLatest { s ->
-            if (s is AuthState.LoggedIn) teamDao.observeTeamsOf(s.userId) else flowOf(emptyList())
+            when (s) {
+                is AuthState.LoggedIn -> teamDao.observeTeamsOf(s.userId)
+                // Chưa đọc xong phiên đăng nhập: chưa phát gì, để màn vẫn hiện "đang tải"
+                // thay vì hiện thoáng "Chưa có nhóm nào".
+                AuthState.Loading -> emptyFlow()
+                AuthState.LoggedOut -> flowOf(emptyList())
+            }
         }
 
     override fun observeMembers(teamId: String) = teamDao.observeMembers(teamId)

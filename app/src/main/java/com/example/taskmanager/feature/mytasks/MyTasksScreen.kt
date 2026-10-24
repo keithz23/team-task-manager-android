@@ -86,6 +86,7 @@ fun MyTasksContent(
                         item = item,
                         onClick = { onTask(item.task.id) },
                         showProject = true,
+                        showStatus = true,
                     )
                 }
             }

@@ -1,7 +1,6 @@
 package com.example.taskmanager.feature.board
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.taskmanager.core.data.TaskRepository
@@ -22,13 +21,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.taskmanager.core.ui.MessageViewModel
 
 @HiltViewModel
 class BoardViewModel @Inject constructor(
     savedState: SavedStateHandle,
     private val repo: TaskRepository,
     private val repoTeam: TeamRepository,
-) : ViewModel() {
+) : MessageViewModel() {
     val projectId: String = savedState.get<String>("projectId")
         ?: savedState.toRoute<Board>().projectId
     val teamId: String = savedState.get<String>("teamId")
@@ -44,6 +44,11 @@ class BoardViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
+    /** Số task theo từng trạng thái, hiện cạnh tên tab. */
+    val counts: StateFlow<Map<TaskStatus, Int>> = repo.observeCounts(projectId)
+        .map { list -> list.associate { it.status to it.count } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     val members: StateFlow<List<MemberWithUser>> = repoTeam.observeMembers(teamId)
         .stateIn(
             scope = viewModelScope,
@@ -68,6 +73,8 @@ class BoardViewModel @Inject constructor(
                 dueDate = dueDate,
                 assigneeId = assigneeId
             )
+                .onSuccess { send("Đã tạo công việc") }
+                .onFailure { send(it.message ?: "Không tạo được công việc") }
         }
     }
 }

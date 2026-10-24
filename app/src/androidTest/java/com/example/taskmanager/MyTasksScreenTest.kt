@@ -97,6 +97,10 @@ class MyTasksScreenTest {
         composeTestRule
             .onNodeWithText("Fix lỗi UI padding")
             .assertIsDisplayed()
+
+        // Mỗi thẻ hiện nhãn trạng thái để phân biệt việc chưa làm và đang làm
+        composeTestRule.onNodeWithText("Cần làm").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Đang làm").assertIsDisplayed()
     }
 
     @Test

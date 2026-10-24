@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.taskmanager.core.model.TeamRole
 
 data class TeamDetailUiState(
     val isLoading: Boolean = true,
@@ -23,6 +24,8 @@ data class TeamDetailUiState(
     val projects: List<ProjectWithCount> = emptyList(),
     val members: List<MemberWithUser> = emptyList(),
     val error: String? = null,
+    /** Chủ nhóm/Quản trị mới được thêm project và thành viên. */
+    val canManage: Boolean = false,
 )
 
 @HiltViewModel
@@ -43,6 +46,7 @@ class TeamDetailViewModel @Inject constructor(
             teamName = team?.name ?: "Chi tiết nhóm",
             projects = projects,
             members = members,
+            canManage = team != null && team.role != TeamRole.MEMBER,
         )
     }.catch { err ->
         emit(TeamDetailUiState(isLoading = false, error = err.message))

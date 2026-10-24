@@ -99,9 +99,11 @@ private fun MainScaffold(loggedIn: Boolean, snackbarHostState: SnackbarHostState
                 SnackbarHost(snackbarHostState) { data ->
                     Snackbar(
                         snackbarData = data,
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                        actionColor = MaterialTheme.colorScheme.onError,
+                        // Màu trung tính mặc định của M3: snackbar dùng cho cả thông báo
+                        // thành công lẫn lỗi, nên không tô đỏ.
+                        containerColor = MaterialTheme.colorScheme.inverseSurface,
+                        contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                        actionColor = MaterialTheme.colorScheme.inversePrimary,
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.imePadding(),
                     )

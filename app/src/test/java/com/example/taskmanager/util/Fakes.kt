@@ -203,6 +203,12 @@ class FakeTaskRepository(
 
     var completedTaskCountError: Throwable? = null
 
+    /** Gán để create() trả Result.failure, giả lập lỗi khi tạo task. */
+    var createError: Throwable? = null
+
+    /** Gán để delete() ném lỗi, giả lập lỗi khi xoá task. */
+    var deleteError: Throwable? = null
+
     val mineTasksFlow =
         MutableStateFlow<List<TaskWithAssignee>>(emptyList())
 
@@ -231,7 +237,11 @@ class FakeTaskRepository(
     override fun observeCounts(
         projectId: String
     ): Flow<List<StatusCount>> {
-        return flowOf(emptyList())
+        return tasks.map { list ->
+            list.filter { it.task.projectId == projectId }
+                .groupingBy { it.task.status }.eachCount()
+                .map { (status, count) -> StatusCount(status, count) }
+        }
     }
 
     override fun observeMine(): Flow<List<TaskWithAssignee>> {
@@ -256,6 +266,7 @@ class FakeTaskRepository(
         dueDate: Long?,
         assigneeId: String?
     ): Result<Unit> {
+        createError?.let { return Result.failure(it) }
 
         val task = TaskEntity(
             id = "created-${createdCalls.size + 1}",
@@ -330,6 +341,7 @@ class FakeTaskRepository(
     override suspend fun delete(
         id: String
     ) {
+        deleteError?.let { throw it }
         tasks.value = tasks.value.filter {
             it.task.id != id
         }

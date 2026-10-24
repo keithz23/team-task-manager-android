@@ -37,6 +37,8 @@ import com.example.taskmanager.core.ui.CollectMessages
 import com.example.taskmanager.core.ui.Tags
 import com.example.taskmanager.core.ui.component.PrimaryButton
 import com.example.taskmanager.core.ui.theme.AppTheme
+import com.example.taskmanager.core.ui.component.label
+import androidx.compose.foundation.layout.Box
 
 @Composable
 fun TeamListScreen(
@@ -74,9 +76,13 @@ fun TeamListContent(
     ) {
         Text("Nhóm của tôi", style = MaterialTheme.typography.headlineMedium)
         when {
-            state.isLoading -> CircularProgressIndicator()
-            state.error != null -> Text(state.error)
-            state.teams.isEmpty() -> Text("Chưa có nhóm nào")
+            // Các trạng thái chiếm phần giữa (weight 1f) để nút "+ Tạo nhóm mới" luôn ở đáy,
+            // không nhảy lên trên trong lúc đang tải.
+            state.isLoading -> Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            state.error != null -> Box(Modifier.weight(1f).fillMaxWidth()) { Text(state.error) }
+            state.teams.isEmpty() -> Box(Modifier.weight(1f).fillMaxWidth()) { Text("Chưa có nhóm nào") }
             else -> LazyColumn(
                 Modifier
                     .weight(1f)
@@ -173,7 +179,7 @@ fun TeamListContent(
             },
             dismissButton = {
                 TextButton(onClick = { dialogTeamId = null }) {
-                    Text("Huỷ")
+                    Text("Hủy")
                 }
             },
         )
@@ -205,7 +211,7 @@ internal fun RoleBadge(role: TeamRole) {
         shape = MaterialTheme.shapes.small,
     ) {
         Text(
-            text = role.name,
+            text = role.label,
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         )

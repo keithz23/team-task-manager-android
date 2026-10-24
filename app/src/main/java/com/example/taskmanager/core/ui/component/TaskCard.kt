@@ -15,12 +15,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.taskmanager.core.database.relation.TaskWithAssignee
 import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.core.ui.theme.tagColors
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import java.util.Date
 import java.util.Locale
 
@@ -30,6 +37,16 @@ val TaskStatus.label: String
         TaskStatus.DOING -> "Đang làm"
         TaskStatus.DONE -> "Hoàn thành"
     }
+
+/**
+ * Task quá hạn: có hạn, chưa hoàn thành, và ngày hạn trước hôm nay (hạn hôm nay chưa tính là quá hạn).
+ * dueDate do DatePicker lưu là 00:00 UTC của ngày được chọn, nên đổi về ngày theo UTC trước khi so.
+ */
+fun isOverdue(dueDate: Long?, status: TaskStatus, today: LocalDate = LocalDate.now()): Boolean {
+    if (dueDate == null || status == TaskStatus.DONE) return false
+    val dueDay = Instant.ofEpochMilli(dueDate).atZone(ZoneOffset.UTC).toLocalDate()
+    return dueDay.isBefore(today)
+}
 
 /**
  * Thẻ task cho Board và My tasks: tiêu đề, độ ưu tiên, hạn chót, người được giao.
@@ -73,13 +90,22 @@ fun TaskCard(
                 PriorityChip(task.priority)
             }
 
-            val subtitleText = buildString {
+            // Phần hạn chuyển màu đỏ và thêm "Quá hạn" khi task quá hạn.
+            val overdue = isOverdue(task.dueDate, task.status)
+            val errorColor = MaterialTheme.colorScheme.error
+            val subtitleText = buildAnnotatedString {
                 if (showProject && item.project != null) {
                     append(item.project.name)
                 }
                 if (task.dueDate != null) {
-                    if (isNotEmpty()) append(" · ")
-                    append("Hạn ${formatDue(task.dueDate)}")
+                    if (length > 0) append(" · ")
+                    if (overdue) {
+                        withStyle(SpanStyle(color = errorColor, fontWeight = FontWeight.Medium)) {
+                            append("Hạn ${formatDue(task.dueDate)} · Quá hạn")
+                        }
+                    } else {
+                        append("Hạn ${formatDue(task.dueDate)}")
+                    }
                 }
             }
 

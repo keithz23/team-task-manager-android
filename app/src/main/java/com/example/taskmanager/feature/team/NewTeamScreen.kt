@@ -40,6 +40,10 @@ import com.example.taskmanager.core.ui.component.AppTextField
 import com.example.taskmanager.core.ui.component.AvatarInitials
 import com.example.taskmanager.core.ui.component.PrimaryButton
 import com.example.taskmanager.core.ui.theme.AppTheme
+import com.example.taskmanager.core.ui.component.label
+import com.example.taskmanager.core.model.TeamRole
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun NewTeamScreen(
@@ -100,7 +104,9 @@ fun NewTeamContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text("Tạo nhóm mới", style = MaterialTheme.typography.headlineSmall)
@@ -126,10 +132,10 @@ fun NewTeamContent(
                 style = MaterialTheme.typography.titleSmall,
             )
 
-            MemberItemCard(name = "Bạn", role = "Owner")
+            MemberItemCard(name = "Bạn", role = TeamRole.OWNER.label)
 
             state.pendingEmails.forEach { email ->
-                MemberItemCard(name = email, role = "Member")
+                MemberItemCard(name = email, role = TeamRole.MEMBER.label)
             }
 
             Row(
@@ -154,7 +160,8 @@ fun NewTeamContent(
                     Text("Thêm", style = MaterialTheme.typography.labelLarge)
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
+            // Màn cuộn được nên không dùng Spacer(weight); nút nằm ngay dưới danh sách thành viên
+            Spacer(modifier = Modifier.height(8.dp))
 
             PrimaryButton(
                 text = "Tạo nhóm",

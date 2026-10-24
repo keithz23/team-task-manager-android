@@ -35,6 +35,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskmanager.core.model.TaskStatus
 import com.example.taskmanager.core.ui.component.TaskCard
+import com.example.taskmanager.core.ui.component.label
+import com.example.taskmanager.core.ui.CollectMessages
+import androidx.compose.foundation.layout.Row
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +53,9 @@ fun BoardScreen(
     val members by vm.members.collectAsStateWithLifecycle()
     var showSheet by remember { mutableStateOf(false) }
     val selectedStatus by vm.selectedStatus.collectAsStateWithLifecycle()
+    val counts by vm.counts.collectAsStateWithLifecycle()
     val tabs = listOf(TaskStatus.TODO, TaskStatus.DOING, TaskStatus.DONE)
+    CollectMessages(vm.messages)
 
     Scaffold(
         topBar = {
@@ -96,38 +101,29 @@ fun BoardScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 tabs.forEach { status ->
-                    val tabTitle = when (status) {
-                        TaskStatus.TODO -> "Todo"
-                        TaskStatus.DOING -> "Doing"
-                        TaskStatus.DONE -> "Done"
-                    }
+                    val tabTitle = status.label
                     val isSelected = selectedStatus == status
 
                     Tab(
                         selected = isSelected,
                         onClick = { vm.selectStatus(status) },
                         text = {
-                            Text(
-                                text = tabTitle,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            val color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            val weight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            // Tên tab và số lượng là 2 Text riêng (UI test vẫn tìm được đúng "Cần làm");
+                            // số lượng nằm dòng dưới để "Hoàn thành" không bị xuống dòng.
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(text = tabTitle, fontWeight = weight, color = color, maxLines = 1)
+                                Text(
+                                    text = "${counts[status] ?: 0} task",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = color,
+                                )
+                            }
                         },
                     )
                 }
             }
-
-            Text(
-                text = "${
-                    when (selectedStatus) {
-                        TaskStatus.TODO -> "Cần làm"
-                        TaskStatus.DOING -> "Đang làm"
-                        TaskStatus.DONE -> "Hoàn thành"
-                    }
-                } (${taskList.size})",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-            )
 
             if (taskList.isEmpty()) {
                 Box(

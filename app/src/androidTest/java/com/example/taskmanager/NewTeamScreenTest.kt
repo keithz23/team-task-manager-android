@@ -64,7 +64,7 @@ class NewTeamScreenTest {
         composeRule.onNodeWithTag(Tags.TEAM_NAME).assertIsDisplayed()
         composeRule.onNodeWithTag(Tags.CREATE_TEAM_BUTTON).assertIsDisplayed()
         composeRule.onNodeWithText("Bạn").assertIsDisplayed()
-        composeRule.onNodeWithText("Owner").assertIsDisplayed()
+        composeRule.onNodeWithText("Chủ nhóm").assertIsDisplayed()
     }
 
     @Test
