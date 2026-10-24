@@ -30,6 +30,14 @@ jobs:
         with:
           name: unit-test-report
           path: app/build/reports/tests/
+      # CD tối thiểu: mỗi lần CI xanh đều có file APK debug để tải về cài thử
+      # (tab Actions > chọn lần chạy > mục Artifacts > app-debug-apk).
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
 
   ui-test:
     runs-on: ubuntu-latest
